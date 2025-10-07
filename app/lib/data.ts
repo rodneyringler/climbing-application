@@ -216,3 +216,13 @@ export async function fetchFilteredCustomers(query: string) {
     throw new Error('Failed to fetch customer table.');
   }
 }
+
+export async function fetchExercises(query: string) {
+  try {
+    const exercises = await sql`select * from exercises;`;
+    return exercises;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch exercises.');
+  }
+}

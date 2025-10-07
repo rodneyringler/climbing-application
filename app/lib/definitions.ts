@@ -86,3 +86,17 @@ export type InvoiceForm = {
   amount: number;
   status: 'pending' | 'paid';
 };
+
+export type Exercise = {
+  id: string;
+  title: string;
+  creator: string;
+  exerciseType: string;
+  isTimed: boolean;
+  reps: number;
+  sets: number;
+  restTime: number;
+  workTime: number;
+  isPublic: boolean;
+  description: string;
+};
