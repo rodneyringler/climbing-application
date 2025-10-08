@@ -6,6 +6,8 @@ import { redirect } from 'next/navigation';
 import postgres from 'postgres';
 import { signIn } from '@/auth';
 import { AuthError } from 'next-auth';
+import bcrypt from 'bcrypt';
+import { randomUUID } from 'crypto';
  
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
  
@@ -87,5 +89,60 @@ export async function deleteInvoice(id: string) {
         }
       }
       throw error;
+    }
+  }
+
+  export async function createAccount(
+    prevState: string | undefined,
+    formData: FormData,
+  ) {
+    const CreateAccountSchema = z.object({
+      name: z.string().min(1, 'Name is required'),
+      email: z.string().email('Invalid email address'),
+      password: z.string().min(6, 'Password must be at least 6 characters'),
+      confirmPassword: z.string().min(6, 'Password confirmation is required'),
+    });
+
+    const validatedFields = CreateAccountSchema.safeParse({
+      name: formData.get('name'),
+      email: formData.get('email'),
+      password: formData.get('password'),
+      confirmPassword: formData.get('confirmPassword'),
+    });
+
+    if (!validatedFields.success) {
+      return 'Invalid input. Please check your information.';
+    }
+
+    const { name, email, password, confirmPassword } = validatedFields.data;
+
+    if (password !== confirmPassword) {
+      return 'Passwords do not match.';
+    }
+
+    try {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const id = randomUUID();
+
+      await sql`
+        INSERT INTO users (id, name, email, password)
+        VALUES (${id}, ${name}, ${email}, ${hashedPassword})
+      `;
+
+      // Automatically sign in the user after account creation
+      await signIn('credentials', {
+        email,
+        password,
+        redirectTo: '/ui/dashboard',
+      });
+    } catch (error) {
+      console.error('Account creation error:', error);
+      
+      // Handle specific database errors
+      if (error instanceof Error && error.message.includes('duplicate key')) {
+        return 'An account with this email already exists.';
+      }
+      
+      return 'Failed to create account. Please try again.';
     }
   }
