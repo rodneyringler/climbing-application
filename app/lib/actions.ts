@@ -8,6 +8,7 @@ import { signIn } from '@/auth';
 import { AuthError } from 'next-auth';
 import bcrypt from 'bcrypt';
 import { randomUUID } from 'crypto';
+import { InvoiceClass } from './Invoice';
  
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
  
@@ -31,13 +32,7 @@ export async function createInvoice(formData: FormData) {
 
     console.log(customerId, amount, status);
 
-    const amountInCents = amount * 100;
-    const date = new Date().toISOString().split('T')[0];
-
-    await sql`
-        INSERT INTO invoices (customer_id, amount, status, date)
-        VALUES (${customerId}, ${amountInCents}, ${status}, ${date})
-    `;
+    await InvoiceClass.create(customerId, amount, status);
 
     revalidatePath('/ui/dashboard/invoices');
     redirect('/ui/dashboard/invoices');
@@ -51,14 +46,8 @@ export async function updateInvoice(id: string, formData: FormData) {
     status: formData.get('status'),
   });
  
-  const amountInCents = amount * 100;
- 
   try {
-    await sql`
-        UPDATE invoices
-        SET customer_id = ${customerId}, amount = ${amountInCents}, status = ${status}
-        WHERE id = ${id}
-      `;
+    await InvoiceClass.update(id, customerId, amount, status);
   } catch (error) {
     // We'll also log the error to the console for now
     console.error(error);
@@ -69,7 +58,7 @@ export async function updateInvoice(id: string, formData: FormData) {
 }
 
 export async function deleteInvoice(id: string) {
-    await sql`DELETE FROM invoices WHERE id = ${id}`;
+    await InvoiceClass.delete(id);
     revalidatePath('/ui/dashboard/invoices');
   }
 
