@@ -1,5 +1,5 @@
 import CreateExerciseForm from '@/app/ui-components/exercises/create-form';
-import Breadcrumbs from '@/app/ui-components/invoices/breadcrumbs';
+import Breadcrumbs from '@/app/ui-components/dashboard/breadcrumbs';
 import { ExerciseType } from '@/app/lib/exercise/exerciseType';
  
 export default async function Page() {
