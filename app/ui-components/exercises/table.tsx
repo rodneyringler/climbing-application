@@ -1,12 +1,14 @@
 import { UpdateExercise, DeleteExercise } from '@/app/ui-components/exercises/buttons';
-import { fetchExercises } from '@/app/lib/data';
+import { Exercise } from '@/app/lib/Exercise';
 
 export default async function ExercisesTable({
   query,
+  currentPage,
 }: {
   query: string;
+  currentPage: number;
 }) {
-  const exercises = await fetchExercises(query);
+  const exercises = await Exercise.fetchFiltered(query, currentPage);
 
   return (
     <div className="mt-6 flow-root">
@@ -21,17 +23,20 @@ export default async function ExercisesTable({
                 <div className="flex items-center justify-between border-b pb-4">
                   <div>
                     <div className="mb-2 flex items-center">
-                      <p>{exercise.name}</p>
+                      <p className="text-sm font-medium">{exercise.title}</p>
                     </div>
                     <p className="text-sm text-gray-500">{exercise.description}</p>
+                    <p className="text-sm text-gray-500">Creator: {exercise.creator}</p>
                   </div>
                 </div>
                 <div className="flex w-full items-center justify-between pt-4">
                   <div>
-                    {/* <p className="text-xl font-medium">
-                      {formatCurrency(invoice.amount)}
+                    <p className="text-sm">
+                      {exercise.sets} sets × {exercise.reps} reps
                     </p>
-                    <p>{formatDateToLocal(invoice.date)}</p> */}
+                    <p className="text-sm text-gray-500">
+                      {exercise.isTimed ? 'Timed' : 'Not timed'}
+                    </p>
                   </div>
                   <div className="flex justify-end gap-2">
                     <UpdateExercise id={exercise.id} />
@@ -45,19 +50,31 @@ export default async function ExercisesTable({
             <thead className="rounded-lg text-left text-sm font-normal">
               <tr>
                 <th scope="col" className="px-4 py-5 font-medium sm:pl-6">
-                  Customer
+                  Title
                 </th>
                 <th scope="col" className="px-3 py-5 font-medium">
-                  Email
+                  Creator
                 </th>
                 <th scope="col" className="px-3 py-5 font-medium">
-                  Amount
+                  Type
                 </th>
                 <th scope="col" className="px-3 py-5 font-medium">
-                  Date
+                  Description
                 </th>
                 <th scope="col" className="px-3 py-5 font-medium">
-                  Status
+                  Sets × Reps
+                </th>
+                <th scope="col" className="px-3 py-5 font-medium">
+                  Rest Time
+                </th>
+                <th scope="col" className="px-3 py-5 font-medium">
+                  Work Time
+                </th>
+                <th scope="col" className="px-3 py-5 font-medium">
+                  Timed
+                </th>
+                <th scope="col" className="px-3 py-5 font-medium">
+                  Public
                 </th>
                 <th scope="col" className="relative py-3 pl-6 pr-3">
                   <span className="sr-only">Edit</span>
@@ -70,8 +87,36 @@ export default async function ExercisesTable({
                   key={exercise.id}
                   className="w-full border-b py-3 text-sm last-of-type:border-none [&:first-child>td:first-child]:rounded-tl-lg [&:first-child>td:last-child]:rounded-tr-lg [&:last-child>td:first-child]:rounded-bl-lg [&:last-child>td:last-child]:rounded-br-lg"
                 >
+                  <td className="whitespace-nowrap py-3 pl-6 pr-3">
+                    <div className="flex items-center gap-3">
+                      <p className="font-medium">{exercise.title}</p>
+                    </div>
+                  </td>
                   <td className="whitespace-nowrap px-3 py-3">
-                    {exercise.title}
+                    {exercise.creator}
+                  </td>
+                  <td className="whitespace-nowrap px-3 py-3">
+                    {exercise.exerciseTypeName || exercise.exerciseType}
+                  </td>
+                  <td className="px-3 py-3">
+                    <div className="max-w-xs truncate" title={exercise.description}>
+                      {exercise.description}
+                    </div>
+                  </td>
+                  <td className="whitespace-nowrap px-3 py-3">
+                    {exercise.sets} × {exercise.reps}
+                  </td>
+                  <td className="whitespace-nowrap px-3 py-3">
+                    {exercise.restTime || 0}s
+                  </td>
+                  <td className="whitespace-nowrap px-3 py-3">
+                    {exercise.workTime || 0}s
+                  </td>
+                  <td className="whitespace-nowrap px-3 py-3">
+                    {exercise.isTimed ? 'Yes' : 'No'}
+                  </td>
+                  <td className="whitespace-nowrap px-3 py-3">
+                    {exercise.isPublic ? 'Yes' : 'No'}
                   </td>
                   <td className="whitespace-nowrap py-3 pl-6 pr-3">
                     <div className="flex justify-end gap-3">

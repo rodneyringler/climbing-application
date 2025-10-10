@@ -1,23 +1,23 @@
-import Form from '@/app/ui-components/invoices/create-form';
+import CreateExerciseForm from '@/app/ui-components/exercises/create-form';
 import Breadcrumbs from '@/app/ui-components/invoices/breadcrumbs';
-import { fetchCustomers } from '@/app/lib/data';
+import { ExerciseType } from '@/app/lib/ExerciseType';
  
 export default async function Page() {
-  const customers = await fetchCustomers();
+  const exerciseTypes = await ExerciseType.fetchExerciseTypes();
  
   return (
     <main>
       <Breadcrumbs
         breadcrumbs={[
-          { label: 'Invoices', href: '/dashboard/invoices' },
+          { label: 'Exercises', href: '/ui/dashboard/exercises' },
           {
-            label: 'Create Invoice',
-            href: '/dashboard/invoices/create',
+            label: 'Create Exercise',
+            href: '/ui/dashboard/exercises/create',
             active: true,
           },
         ]}
       />
-      <Form customers={customers} />
+      <CreateExerciseForm exerciseTypes={exerciseTypes} />
     </main>
   );
 }

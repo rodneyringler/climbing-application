@@ -1,17 +1,18 @@
-import Form from '@/app/ui-components/invoices/edit-form';
+import EditExerciseForm from '@/app/ui-components/exercises/edit-form';
 import Breadcrumbs from '@/app/ui-components/invoices/breadcrumbs';
-import { fetchInvoiceById, fetchCustomers } from '@/app/lib/data';
+import { Exercise } from '@/app/lib/Exercise';
+import { ExerciseType } from '@/app/lib/ExerciseType';
 import { notFound } from 'next/navigation';
  
 export default async function Page(props: { params: Promise<{ id: string }> }) {
     const params = await props.params;
     const id = params.id;
-    const [invoice, customers] = await Promise.all([
-        fetchInvoiceById(id),
-        fetchCustomers(),
+    const [exercise, exerciseTypes] = await Promise.all([
+        Exercise.fetchById(id),
+        ExerciseType.fetchExerciseTypes(),
       ]);
 
-    if (!invoice) {
+    if (!exercise) {
     notFound();
     }
     
@@ -19,15 +20,15 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
     <main>
       <Breadcrumbs
         breadcrumbs={[
-          { label: 'Invoices', href: '/dashboard/invoices' },
+          { label: 'Exercises', href: '/ui/dashboard/exercises' },
           {
-            label: 'Edit Invoice',
-            href: `/dashboard/invoices/${id}/edit`,
+            label: 'Edit Exercise',
+            href: `/ui/dashboard/exercises/${id}/edit`,
             active: true,
           },
         ]}
       />
-      <Form invoice={invoice} customers={customers} />
+      <EditExerciseForm exercise={exercise} exerciseTypes={exerciseTypes} />
     </main>
   );
 }
