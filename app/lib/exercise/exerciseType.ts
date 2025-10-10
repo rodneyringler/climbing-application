@@ -1,5 +1,5 @@
 import postgres from 'postgres';
-import { ExerciseTypeItem, ExerciseTypeForm, ExerciseTypesTable } from './definitions';
+import { ExerciseTypeItem, ExerciseTypeForm, ExerciseTypesTable } from '@/app/lib/definitions';
 
 export class ExerciseType {
   private sql: postgres.Sql;
@@ -31,19 +31,6 @@ export class ExerciseType {
     };
   }
 
-  // Static CRUD methods
-  static async create(name: string, description: string): Promise<ExerciseType> {
-    const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
-
-    const result = await sql<ExerciseTypeItem[]>`
-      INSERT INTO exercisetypes (id, name, description)
-      VALUES (gen_random_uuid(), ${name}, ${description})
-      RETURNING *
-    `;
-
-    return new ExerciseType(result[0]);
-  }
-
   static async findById(id: string): Promise<ExerciseType | null> {
     const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
     
@@ -61,25 +48,6 @@ export class ExerciseType {
     }
 
     return new ExerciseType(result[0]);
-  }
-
-  static async update(id: string, name: string, description: string): Promise<ExerciseType> {
-    const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
-
-    const result = await sql<ExerciseTypeItem[]>`
-      UPDATE exercisetypes
-      SET name = ${name}, description = ${description}
-      WHERE id = ${id}
-      RETURNING *
-    `;
-
-    return new ExerciseType(result[0]);
-  }
-
-  static async delete(id: string): Promise<void> {
-    const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
-    
-    await sql`DELETE FROM exercisetypes WHERE id = ${id}`;
   }
 
   static async findAll(): Promise<ExerciseType[]> {

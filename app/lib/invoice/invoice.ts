@@ -1,6 +1,6 @@
 import postgres from 'postgres';
-import { Invoice, InvoiceForm, InvoicesTable, LatestInvoiceRaw } from './definitions';
-import { formatCurrency } from './utils';
+import { Invoice, InvoiceForm, InvoicesTable, LatestInvoiceRaw } from '@/app/lib/definitions';
+import { formatCurrency } from '@/app/lib/utils';
 
 export class InvoiceClass {
   private sql: postgres.Sql;

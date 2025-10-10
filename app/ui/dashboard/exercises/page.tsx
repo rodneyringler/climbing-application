@@ -5,7 +5,7 @@ import { CreateExercise } from '@/app/ui-components/exercises/buttons';
 import { lusitana } from '@/app/ui-components/fonts';
 import { InvoicesTableSkeleton } from '@/app/ui-components/skeletons';
 import { Suspense } from 'react';
-import { Exercise } from '@/app/lib/Exercise';
+import { Exercise } from '@/app/lib/exercise/exercise';
  
 export default async function Page(props: {
   searchParams?: Promise<{

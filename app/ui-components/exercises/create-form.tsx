@@ -1,8 +1,8 @@
 'use client';
 
-import { createExercise } from '@/app/lib/actions';
+import { createExercise } from '@/app/lib/exercise/exercise-actions';
 import { Button } from '@/app/ui-components/button';
-import { ExerciseType } from '@/app/lib/ExerciseType';
+import { ExerciseType } from '@/app/lib/exercise/exerciseType';
 
 export default function CreateExerciseForm({ exerciseTypes }: { exerciseTypes: { id: string; name: string }[] }) {
   return (

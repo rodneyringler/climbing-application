@@ -8,11 +8,11 @@ import {
   Revenue,
   ExerciseForm,
   ExerciseTypeForm,
-} from './definitions';
-import { formatCurrency } from './utils';
-import { InvoiceClass } from './Invoice';
-import { Exercise } from './Exercise';
-import { ExerciseType } from './ExerciseType';
+} from '../definitions';
+import { formatCurrency } from '../utils';
+import { InvoiceClass } from '@/app/lib/invoice/invoice';
+import { Exercise } from '@/app/lib/exercise/exercise';
+import { ExerciseType } from '@/app/lib/exercise/exerciseType';
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 const ITEMS_PER_PAGE = 6;

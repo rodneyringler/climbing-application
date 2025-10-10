@@ -1,5 +1,5 @@
 import { UpdateExercise, DeleteExercise } from '@/app/ui-components/exercises/buttons';
-import { Exercise } from '@/app/lib/Exercise';
+import { Exercise } from '@/app/lib/exercise/exercise';
 
 export default async function ExercisesTable({
   query,
