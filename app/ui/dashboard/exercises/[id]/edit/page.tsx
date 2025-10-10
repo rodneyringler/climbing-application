@@ -1,5 +1,5 @@
 import EditExerciseForm from '@/app/ui-components/exercises/edit-form';
-import Breadcrumbs from '@/app/ui-components/invoices/breadcrumbs';
+import Breadcrumbs from '@/app/ui-components/dashboard/breadcrumbs';
 import { Exercise } from '@/app/lib/exercise/exercise';
 import { ExerciseType } from '@/app/lib/exercise/exerciseType';
 import { notFound } from 'next/navigation';
