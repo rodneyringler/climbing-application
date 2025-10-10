@@ -5,7 +5,7 @@ import { CreateInvoice } from '@/app/ui-components/invoices/buttons';
 import { lusitana } from '@/app/ui-components/fonts';
 import { InvoicesTableSkeleton } from '@/app/ui-components/skeletons';
 import { Suspense } from 'react';
-import { fetchInvoicesPages } from '@/app/lib/data';
+import { fetchInvoicesPages } from '@/app/lib/invoice/data';
  
 export default async function Page(props: {
   searchParams?: Promise<{

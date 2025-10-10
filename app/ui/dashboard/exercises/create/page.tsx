@@ -1,6 +1,6 @@
 import CreateExerciseForm from '@/app/ui-components/exercises/create-form';
 import Breadcrumbs from '@/app/ui-components/invoices/breadcrumbs';
-import { ExerciseType } from '@/app/lib/ExerciseType';
+import { ExerciseType } from '@/app/lib/exercise/exerciseType';
  
 export default async function Page() {
   const exerciseTypes = await ExerciseType.fetchExerciseTypes();

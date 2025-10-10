@@ -9,7 +9,7 @@ import {
 import { ArrowRightIcon } from '@heroicons/react/20/solid';
 import { Button } from './button';
 import { useActionState } from 'react';
-import { authenticate } from '@/app/lib/actions';
+import { authenticate } from '@/app/lib/account/account-actions';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 

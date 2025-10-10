@@ -1,5 +1,5 @@
 import postgres from 'postgres';
-import { ExerciseItem, ExerciseForm, ExercisesTable } from './definitions';
+import { ExerciseItem, ExerciseForm, ExercisesTable } from '@/app/lib/definitions';
 
 export class Exercise {
   private sql: postgres.Sql;

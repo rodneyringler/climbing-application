@@ -1,6 +1,6 @@
 'use client';
 
-import { updateExercise } from '@/app/lib/actions';
+import { updateExercise } from '@/app/lib/exercise/exercise-actions';
 import { Button } from '@/app/ui-components/button';
 import { ExerciseForm } from '@/app/lib/definitions';
 

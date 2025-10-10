@@ -1,7 +1,7 @@
 import RevenueChart from '@/app/ui-components/dashboard/revenue-chart';
 import LatestInvoices from '@/app/ui-components/dashboard/latest-invoices';
 import { lusitana } from '@/app/ui-components/fonts';
-import { fetchCardData } from '@/app/lib/data';
+import { fetchCardData } from '@/app/lib/invoice/data';
 import { Suspense } from 'react';
 import { RevenueChartSkeleton, LatestInvoicesSkeleton, CardsSkeleton } from '@/app/ui-components/skeletons';
 import CardWrapper from '@/app/ui-components/dashboard/cards';
