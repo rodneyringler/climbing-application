@@ -6,11 +6,16 @@ import {
   InvoicesTable,
   LatestInvoiceRaw,
   Revenue,
+  ExerciseForm,
+  ExerciseTypeForm,
 } from './definitions';
 import { formatCurrency } from './utils';
 import { InvoiceClass } from './Invoice';
+import { Exercise } from './Exercise';
+import { ExerciseType } from './ExerciseType';
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
+const ITEMS_PER_PAGE = 6;
 
 export async function fetchRevenue() {
   try {
@@ -80,7 +85,6 @@ export async function fetchCardData() {
   }
 }
 
-const ITEMS_PER_PAGE = 6;
 export async function fetchFilteredInvoices(
   query: string,
   currentPage: number,
@@ -165,12 +169,4 @@ export async function fetchFilteredCustomers(query: string) {
   }
 }
 
-export async function fetchExercises(query: string) {
-  try {
-    const exercises = await sql`select * from exercises;`;
-    return exercises;
-  } catch (error) {
-    console.error('Database Error:', error);
-    throw new Error('Failed to fetch exercises.');
-  }
-}
+

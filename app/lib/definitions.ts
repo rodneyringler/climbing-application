@@ -87,7 +87,13 @@ export type InvoiceForm = {
   status: 'pending' | 'paid';
 };
 
-export type Exercise = {
+export type ExerciseTypeItem = {
+  id: string;
+  name: string;
+  description: string;
+};
+
+export type ExerciseItem = {
   id: string;
   title: string;
   creator: string;
@@ -98,5 +104,46 @@ export type Exercise = {
   restTime: number;
   workTime: number;
   isPublic: boolean;
+  description: string;
+};
+
+export type ExerciseForm = {
+  id: string;
+  title: string;
+  creator: string;
+  exerciseType: string;
+  isTimed: boolean;
+  reps: number;
+  sets: number;
+  restTime: number;
+  workTime: number;
+  isPublic: boolean;
+  description: string;
+};
+
+export type ExercisesTable = {
+  id: string;
+  title: string;
+  creator: string;
+  exerciseType: string;
+  isTimed: boolean;
+  reps: number;
+  sets: number;
+  restTime: number;
+  workTime: number;
+  isPublic: boolean;
+  description: string;
+  exerciseTypeName?: string;
+};
+
+export type ExerciseTypeForm = {
+  id: string;
+  name: string;
+  description: string;
+};
+
+export type ExerciseTypesTable = {
+  id: string;
+  name: string;
   description: string;
 };
