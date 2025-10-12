@@ -26,7 +26,7 @@ export default async function ExercisesTable({
                       <p className="text-sm font-medium">{exercise.title}</p>
                     </div>
                     <p className="text-sm text-gray-500">{exercise.description}</p>
-                    <p className="text-sm text-gray-500">Creator: {exercise.creator}</p>
+                    <p className="text-sm text-gray-500">Creator: {exercise.user}</p>
                   </div>
                 </div>
                 <div className="flex w-full items-center justify-between pt-4">
@@ -93,7 +93,7 @@ export default async function ExercisesTable({
                     </div>
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
-                    {exercise.creator}
+                    {exercise.user}
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
                     {exercise.exerciseTypeName || exercise.exerciseType}

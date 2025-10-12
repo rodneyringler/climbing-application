@@ -33,19 +33,25 @@ export default function EditExerciseForm({
           </div>
         </div>
 
-        {/* Creator */}
+        {/* User */}
         <div className="mb-4">
-          <label htmlFor="creator" className="mb-2 block text-sm font-medium">
-            Creator
+          <label htmlFor="user" className="mb-2 block text-sm font-medium">
+            User
           </label>
           <div className="relative mt-2 rounded-md">
             <input
-              id="creator"
-              name="creator"
+              id="user"
+              name="user"
               type="text"
-              defaultValue={exercise.creator}
+              defaultValue={exercise.userName || exercise.user}
               className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500 bg-gray-100"
               readOnly
+            />
+            {/* Hidden field to preserve the actual user ID for form submission */}
+            <input
+              type="hidden"
+              name="userId"
+              value={exercise.user}
             />
           </div>
         </div>

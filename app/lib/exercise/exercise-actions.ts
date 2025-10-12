@@ -10,7 +10,7 @@ import { Exercise } from './exercise';
 const ExerciseFormSchema = z.object({
   id: z.string(),
   title: z.string().min(1, 'Title is required'),
-  creator: z.string().min(1, 'Creator is required'),
+  user: z.string().min(1, 'User is required'),
   exerciseType: z.string().min(1, 'Exercise type is required'),
   isTimed: z.boolean(),
   reps: z.coerce.number().min(0, 'Reps must be non-negative'),
@@ -21,7 +21,7 @@ const ExerciseFormSchema = z.object({
   description: z.string().min(1, 'Description is required'),
 });
 
-const CreateExercise = ExerciseFormSchema.omit({ id: true, creator: true });
+const CreateExercise = ExerciseFormSchema.omit({ id: true, user: true });
 const UpdateExercise = ExerciseFormSchema.omit({ id: true });
 
 // Server action functions for form handling
@@ -51,9 +51,9 @@ export async function createExercise(formData: FormData) {
 }
 
 export async function updateExercise(id: string, formData: FormData) {
-  const { title, creator, exerciseType, isTimed, reps, sets, restTime, workTime, isPublic, description } = UpdateExercise.parse({
+  const { title, user, exerciseType, isTimed, reps, sets, restTime, workTime, isPublic, description } = UpdateExercise.parse({
     title: formData.get('title'),
-    creator: formData.get('creator'),
+    user: formData.get('userId'), // Use userId instead of user
     exerciseType: formData.get('exerciseType'),
     isTimed: formData.get('isTimed') === 'on',
     reps: formData.get('reps'),
@@ -65,7 +65,7 @@ export async function updateExercise(id: string, formData: FormData) {
   });
 
   try {
-    await Exercise.update(id, title, creator, exerciseType, isTimed, reps, sets, restTime, workTime, isPublic, description);
+    await Exercise.update(id, title, user, exerciseType, isTimed, reps, sets, restTime, workTime, isPublic, description);
   } catch (error) {
     console.error(error);
   }
