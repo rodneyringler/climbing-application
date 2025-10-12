@@ -18,7 +18,7 @@ export type ExerciseTypeItem = {
 export type ExerciseItem = {
   id: string;
   title: string;
-  creator: string;
+  user: string;
   exerciseType: string;
   isTimed: boolean;
   reps: number;
@@ -32,7 +32,7 @@ export type ExerciseItem = {
 export type ExerciseForm = {
   id: string;
   title: string;
-  creator: string;
+  user: string;
   exerciseType: string;
   isTimed: boolean;
   reps: number;
@@ -41,12 +41,13 @@ export type ExerciseForm = {
   workTime: number;
   isPublic: boolean;
   description: string;
+  userName?: string;
 };
 
 export type ExercisesTable = {
   id: string;
   title: string;
-  creator: string;
+  user: string;
   exerciseType: string;
   isTimed: boolean;
   reps: number;

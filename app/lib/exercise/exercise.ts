@@ -5,7 +5,7 @@ export class Exercise {
   private sql: postgres.Sql;
   public id: string;
   public title: string;
-  public creator: string;
+  public user: string;
   public exerciseType: string;
   public isTimed: boolean;
   public reps: number;
@@ -17,12 +17,13 @@ export class Exercise {
   
   // Optional properties for joined queries
   public exerciseTypeName?: string;
+  public userName?: string;
 
   constructor(data: ExerciseItem | ExerciseForm | ExercisesTable) {
     this.sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
     this.id = data.id;
     this.title = data.title;
-    this.creator = data.creator;
+    this.user = data.user;
     this.exerciseType = data.exerciseType;
     
     // Convert boolean values properly in case they come as strings from the database
@@ -39,6 +40,10 @@ export class Exercise {
       this.exerciseTypeName = data.exerciseTypeName;
       console.log('Set exerciseTypeName to:', this.exerciseTypeName);
     }
+    if ('userName' in data) {
+      this.userName = data.userName;
+      console.log('Set userName to:', this.userName);
+    }
   }
 
   // Instance methods for data transformation
@@ -46,7 +51,7 @@ export class Exercise {
     return {
       id: this.id,
       title: this.title,
-      creator: this.creator,
+      user: this.user,
       exerciseType: this.exerciseType,
       isTimed: this.isTimed,
       reps: this.reps,
@@ -55,6 +60,7 @@ export class Exercise {
       workTime: this.workTime,
       isPublic: this.isPublic,
       description: this.description,
+      userName: this.userName,
     };
   }
 
@@ -62,7 +68,7 @@ export class Exercise {
     const result = {
       id: this.id,
       title: this.title,
-      creator: this.creator,
+      user: this.user,
       exerciseType: this.exerciseType,
       isTimed: this.isTimed,
       reps: this.reps,
@@ -80,7 +86,7 @@ export class Exercise {
   // Static CRUD methods
   static async create(
     title: string,
-    creator: string,
+    user: string,
     exerciseType: string,
     isTimed: boolean,
     reps: number,
@@ -93,8 +99,8 @@ export class Exercise {
     const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 
     const result = await sql<ExerciseItem[]>`
-      INSERT INTO exercises (id, title, creator, exercisetype, istimed, reps, sets, resttime, worktime, ispublic, description)
-      VALUES (gen_random_uuid(), ${title}, ${creator}, ${exerciseType}, ${isTimed}, ${reps}, ${sets}, ${restTime}, ${workTime}, ${isPublic}, ${description})
+      INSERT INTO exercises (id, title, "user", exercisetype, istimed, reps, sets, resttime, worktime, ispublic, description)
+      VALUES (gen_random_uuid(), ${title}, ${user}, ${exerciseType}, ${isTimed}, ${reps}, ${sets}, ${restTime}, ${workTime}, ${isPublic}, ${description})
       RETURNING *
     `;
 
@@ -108,7 +114,7 @@ export class Exercise {
       SELECT
         exercises.id,
         exercises.title,
-        exercises.creator,
+        exercises."user",
         exercises.exercisetype as "exerciseType",
         exercises.istimed as "isTimed",
         exercises.reps,
@@ -116,8 +122,10 @@ export class Exercise {
         exercises.resttime as "restTime",
         exercises.worktime as "workTime",
         exercises.ispublic as "isPublic",
-        exercises.description
+        exercises.description,
+        users.name as "userName"
       FROM exercises
+      INNER JOIN users ON exercises."user" = users.id
       WHERE exercises.id = ${id}
     `;
 
@@ -131,7 +139,7 @@ export class Exercise {
   static async update(
     id: string,
     title: string,
-    creator: string,
+    user: string,
     exerciseType: string,
     isTimed: boolean,
     reps: number,
@@ -145,7 +153,7 @@ export class Exercise {
 
     const result = await sql<ExerciseItem[]>`
       UPDATE exercises
-      SET title = ${title}, creator = ${creator}, exercisetype = ${exerciseType}, 
+      SET title = ${title}, "user" = ${user}, exercisetype = ${exerciseType}, 
           istimed = ${isTimed}, reps = ${reps}, sets = ${sets}, resttime = ${restTime}, 
           worktime = ${workTime}, ispublic = ${isPublic}, description = ${description}
       WHERE id = ${id}
@@ -171,7 +179,7 @@ export class Exercise {
         SELECT
           exercises.id,
           exercises.title,
-          exercises.creator,
+          users.name as "user",
           exercises.exercisetype as "exerciseType",
           exercises.istimed as "isTimed",
           exercises.reps,
@@ -182,7 +190,8 @@ export class Exercise {
           exercises.description,
           exercisetypes.name as "exerciseTypeName"
         FROM exercises
-        LEFT JOIN exercisetypes ON exercises.exercisetype = exercisetypes.id
+        INNER JOIN exercisetypes ON exercises.exercisetype = exercisetypes.id
+        INNER JOIN users ON exercises."user" = users.id
         ORDER BY exercises.title ASC
         LIMIT ${itemsPerPage} OFFSET ${offset}
       `;
@@ -200,7 +209,7 @@ export class Exercise {
         SELECT
           exercises.id,
           exercises.title,
-          exercises.creator,
+          users.name as "user",
           exercises.exercisetype as "exerciseType",
           exercises.istimed as "isTimed",
           exercises.reps,
@@ -211,10 +220,12 @@ export class Exercise {
           exercises.description,
           exercisetypes.name as "exerciseTypeName"
         FROM exercises
-        LEFT JOIN exercisetypes ON exercises.exercisetype = exercisetypes.id
+        INNER JOIN exercisetypes ON exercises.exercisetype = exercisetypes.id
+        INNER JOIN users ON exercises."user" = users.id
         WHERE
           exercises.title ILIKE ${searchPattern} OR
           exercises.description ILIKE ${searchPattern} OR
+          users.name ILIKE ${searchPattern} OR
           exercisetypes.name ILIKE ${searchPattern}
         ORDER BY exercises.title ASC
         LIMIT ${itemsPerPage} OFFSET ${offset}
@@ -233,7 +244,7 @@ export class Exercise {
           SELECT
             exercises.id,
             exercises.title,
-            exercises.creator,
+            exercises."user",
             exercises.exercisetype as "exerciseType",
             exercises.istimed as "isTimed",
             exercises.reps,
@@ -245,7 +256,7 @@ export class Exercise {
           FROM exercises
           WHERE
             exercises.title ILIKE ${searchPattern} OR
-            exercises.creator ILIKE ${searchPattern} OR
+            exercises."user" ILIKE ${searchPattern} OR
             exercises.description ILIKE ${searchPattern}
           ORDER BY exercises.title ASC
           LIMIT ${itemsPerPage} OFFSET ${offset}
@@ -299,7 +310,7 @@ export class Exercise {
           FROM exercises
           WHERE
             exercises.title ILIKE ${searchPattern} OR
-            exercises.creator ILIKE ${searchPattern} OR
+            exercises."user" ILIKE ${searchPattern} OR
             exercises.description ILIKE ${searchPattern}
         `;
         
