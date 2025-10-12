@@ -70,3 +70,41 @@ export type ExerciseTypesTable = {
   name: string;
   description: string;
 };
+
+export type ProgramItem = {
+  id: string;
+  user: string;
+  exercise: string;
+  name: string;
+  description: string;
+};
+
+export type ProgramExercise = {
+  id: string;
+  title: string;
+  exerciseType: string;
+  exerciseTypeName?: string;
+  isTimed: boolean;
+  reps: number;
+  sets: number;
+  restTime: number;
+  workTime: number;
+  isPublic: boolean;
+  description: string;
+};
+
+export type ProgramForm = {
+  name: string;
+  description: string;
+  exercises: string[];
+  userName?: string;
+};
+
+export type ProgramsTable = {
+  name: string;
+  description: string;
+  user: string;
+  userName?: string;
+  exerciseCount: number;
+  exercises: ProgramExercise[];
+};
