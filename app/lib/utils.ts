@@ -52,3 +52,44 @@ export const generatePagination = (currentPage: number, totalPages: number) => {
     totalPages,
   ];
 };
+
+// Password validation utilities
+export const validatePassword = (password: string): { isValid: boolean; errors: string[] } => {
+  const errors: string[] = [];
+  
+  if (password.length < 8) {
+    errors.push('Password must be at least 8 characters long');
+  }
+  
+  if (!/[A-Z]/.test(password)) {
+    errors.push('Password must contain at least one uppercase letter');
+  }
+  
+  if (!/[a-z]/.test(password)) {
+    errors.push('Password must contain at least one lowercase letter');
+  }
+  
+  if (!/\d/.test(password)) {
+    errors.push('Password must contain at least one number');
+  }
+  
+  if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+    errors.push('Password must contain at least one special character');
+  }
+  
+  return {
+    isValid: errors.length === 0,
+    errors
+  };
+};
+
+export const getPasswordStrength = (password: string): { score: number; label: string; color: string } => {
+  const validation = validatePassword(password);
+  const score = validation.errors.length === 0 ? 4 : 4 - validation.errors.length;
+  
+  if (score === 0) return { score: 0, label: 'Very Weak', color: 'bg-red-500' };
+  if (score === 1) return { score: 1, label: 'Weak', color: 'bg-orange-500' };
+  if (score === 2) return { score: 2, label: 'Fair', color: 'bg-yellow-500' };
+  if (score === 3) return { score: 3, label: 'Good', color: 'bg-blue-500' };
+  return { score: 4, label: 'Strong', color: 'bg-green-500' };
+};
