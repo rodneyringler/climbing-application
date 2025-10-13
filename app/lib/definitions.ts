@@ -108,3 +108,34 @@ export type ProgramsTable = {
   exerciseCount: number;
   exercises: ProgramExercise[];
 };
+
+export type WorkoutItem = {
+  id: string;
+  user: string;
+  program: string;
+  name: string;
+  started: string | null;
+  ended: string | null;
+};
+
+export type WorkoutForm = {
+  id: string;
+  user: string;
+  program: string;
+  name: string;
+  started: string | null;
+  ended: string | null;
+  userName?: string;
+  programName?: string;
+};
+
+export type WorkoutsTable = {
+  id: string;
+  user: string;
+  program: string;
+  name: string;
+  started: string | null;
+  ended: string | null;
+  userName?: string;
+  programName?: string;
+};
