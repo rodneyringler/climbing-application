@@ -127,9 +127,9 @@ export default function ChangePasswordForm() {
             <p className="mt-1 text-sm text-red-500">Passwords do not match</p>
           )}
         </div>
-        <div className="mt-4 p-3 bg-blue-50 rounded-md">
-          <h4 className="text-sm font-medium text-blue-900 mb-2">Password Requirements:</h4>
-          <ul className="text-xs text-blue-800 space-y-1">
+        <div className="mt-4 p-3 bg-sage-50 rounded-md">
+          <h4 className="text-sm font-medium text-sage-900 mb-2">Password Requirements:</h4>
+          <ul className="text-xs text-sage-800 space-y-1">
             <li>• At least 8 characters long</li>
             <li>• Contains uppercase and lowercase letters</li>
             <li>• Contains at least one number</li>
