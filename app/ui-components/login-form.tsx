@@ -23,7 +23,7 @@ export default function LoginForm() {
 
   return (
     <form action={formAction} className="space-y-3">
-      <div className="flex-1 rounded-lg bg-gray-50 px-6 pb-4 pt-8">
+        <div className="flex-1 rounded-lg bg-stone-100 px-6 pb-4 pt-8">
         <h1 className={`${lusitana.className} mb-3 text-2xl`}>
           Please log in to continue.
         </h1>
@@ -87,7 +87,7 @@ export default function LoginForm() {
         <div className="mt-4 text-center">
           <p className="text-sm text-gray-600">
             Don't have an account?{' '}
-            <Link href="/ui/signup" className="text-blue-600 hover:text-blue-500">
+            <Link href="/ui/signup" className="text-sage-600 hover:text-sage-500">
               Create one
             </Link>
           </p>
