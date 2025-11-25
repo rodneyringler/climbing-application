@@ -7,7 +7,7 @@ export default function WellHungLogo() {
       className={`${lusitana.className} flex flex-row items-center leading-none text-white`}
     >
       <GlobeAltIcon className="h-12 w-12 rotate-[15deg]" />
-      <p className="text-[44px]">Well Hung</p>
+      <p className="text-[44px]">OverHang</p>
     </div>
   );
 }
