@@ -7,9 +7,9 @@ export default function LoginPage() {
   return (
     <main className="flex items-center justify-center md:h-screen relative">
       {/* Subtle bouldering background */}
-      <div className="absolute inset-0 z-0 opacity-30">
+      <div className="absolute inset-0 z-0 opacity-50">
         <Image
-          src="/boldering-hero-desktop.png"
+          src="/hero_img5.jpeg"
           fill
           className="object-cover"
           alt=""

@@ -9,7 +9,7 @@ export default function SignupPage() {
       {/* Subtle bouldering background */}
       <div className="absolute inset-0 z-0 opacity-30">
         <Image
-          src="/boldering-hero-desktop.png"
+          src="/hero_img5.png"
           fill
           className="object-cover"
           alt=""

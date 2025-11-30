@@ -12,10 +12,10 @@ export default function Page() {
         {/* Background Image with Gradient Overlay */}
         <div className="absolute inset-0 z-0">
           <Image
-            src="/boldering-hero-desktop.png"
+            src="/hero_img.jpeg"
             fill
             className="object-cover"
-            alt="Bouldering climbers"
+            alt="Rock climbers"
             priority
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/60"></div>
@@ -31,7 +31,7 @@ export default function Page() {
             Climb Higher, Track Better
           </h1>
           
-          <p className="text-xl md:text-2xl mb-8 text-stone-200 max-w-2xl mx-auto">
+          <p className="text-xl md:text-2xl mb-8 text-white-200 max-w-2xl mx-auto">
             The ultimate climbing companion for boulderers and mountaineers. Track your progress, 
             build custom programs, and reach new heights.
           </p>
