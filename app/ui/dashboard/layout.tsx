@@ -9,9 +9,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       </div>
       <div className="flex-grow p-6 md:overflow-y-auto md:p-12 relative">
         {/* Subtle bouldering background */}
-        <div className="absolute inset-0 z-0 opacity-15">
+        <div className="absolute inset-0 z-0 opacity-40">
           <Image
-            src="/boldering-hero-desktop.png"
+            src="/hero_img3.jpeg"
             fill
             className="object-cover"
             alt=""
