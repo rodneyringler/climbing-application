@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { auth } from '@/auth';
 import { Workout } from './workout';
+import postgres from 'postgres';
 
 // Zod schemas for form validation
 const WorkoutFormSchema = z.object({
@@ -62,4 +63,15 @@ export async function updateWorkout(id: string, formData: FormData) {
 export async function deleteWorkout(id: string) {
   await Workout.delete(id);
   revalidatePath('/ui/dashboard/workouts');
+}
+
+export async function getWorkoutCount(): Promise<number> {
+  try {
+    const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
+    const data = await sql`SELECT COUNT(*) FROM workouts`;
+    return Number(data[0].count);
+  } catch (error) {
+    console.error('Failed to fetch workout count:', error);
+    throw new Error('Failed to fetch workout count.');
+  }
 }

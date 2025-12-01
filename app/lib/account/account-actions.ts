@@ -96,6 +96,16 @@ export async function getUserById(id: string) {
   }
 }
 
+export async function getUserCount(): Promise<number> {
+  try {
+    const data = await sql`SELECT COUNT(*) FROM users`;
+    return Number(data[0].count);
+  } catch (error) {
+    console.error('Failed to fetch user count:', error);
+    throw new Error('Failed to fetch user count.');
+  }
+}
+
 export async function updateAccountInfo(
   prevState: string | undefined,
   formData: FormData,
