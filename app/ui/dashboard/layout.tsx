@@ -11,7 +11,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         {/* Subtle bouldering background */}
         <div className="absolute inset-0 z-0 opacity-40">
           <Image
-            src="/hero_img.jpeg"
+            src="/hero_img3.png"
             fill
             className="object-cover"
             alt=""
