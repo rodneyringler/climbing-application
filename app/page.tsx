@@ -3,8 +3,14 @@ import { ArrowRightIcon, ChartBarIcon, CogIcon, BookOpenIcon, UserGroupIcon } fr
 import Link from 'next/link';
 import { lusitana } from '@/app/ui-components/fonts';
 import Image from 'next/image';
+import { Exercise } from '@/app/lib/exercise/exercise';
+import { getUserCount } from '@/app/lib/account/account-actions';
+import { getWorkoutCount } from '@/app/lib/workout/workout-actions';
 
-export default function Page() {
+export default async function Page() {
+  const exerciseCount = await Exercise.countFiltered('');
+  const userCount = await getUserCount();
+  const workoutCount = await getWorkoutCount();
   return (
     <main className="min-h-screen">
       {/* Hero Section */}
@@ -129,17 +135,19 @@ export default function Page() {
           
           <div className="grid md:grid-cols-3 gap-8 text-center">
             <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8">
-              <div className="text-4xl md:text-5xl font-bold mb-2">10,000+</div>
+              <div className="text-4xl md:text-5xl font-bold mb-2">{workoutCount.toLocaleString()}+</div>
               <div className="text-lg text-sage-100">Workouts Logged</div>
             </div>
             
             <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8">
-              <div className="text-4xl md:text-5xl font-bold mb-2">500+</div>
+            {/* <div className="text-4xl md:text-5xl font-bold mb-2">500+</div> */}
+              <div className="text-4xl md:text-5xl font-bold mb-2">{exerciseCount}+</div>
               <div className="text-lg text-sage-100">Exercises Available</div>
             </div>
             
             <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8">
-              <div className="text-4xl md:text-5xl font-bold mb-2">2,500+</div>
+            {/* <div className="text-4xl md:text-5xl font-bold mb-2">2,500+</div> */}
+              <div className="text-4xl md:text-5xl font-bold mb-2">{userCount}+</div>
               <div className="text-lg text-sage-100">Active Climbers</div>
             </div>
           </div>
