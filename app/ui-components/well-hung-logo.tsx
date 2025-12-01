@@ -7,8 +7,8 @@ export default function WellHungLogo() {
     <div
       className={`${lusitana.className} flex flex-row items-center leading-none text-white`}
     >
-      <Image src="/favicon.ico" alt="logo" width={68} height={48}/>
-      <p className="text-[44px]">OverHang</p>
+      <Image src="/favicon.ico" alt="logo" width={48} height={48}/>
+      <p className="text-[34px]">OverHang</p>
     </div>
   );
 }

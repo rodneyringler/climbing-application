@@ -139,3 +139,41 @@ export type WorkoutsTable = {
   userName?: string;
   programName?: string;
 };
+
+export type LogbookItem = {
+  id: string;
+  user: string;
+  program: string;
+  workout: string;
+  name: string;
+  date: string;
+  location?: string | null;
+  notes?: string | null;
+  isPublic: boolean;
+}
+
+export type LogbookForm = {
+  id: string;
+  user: string;
+  program: string;
+  workout: string;
+  name: string;
+  date: string;
+  location?: string | null;
+  notes?: string | null;
+  userName?: string;
+  isPublic: boolean;
+}
+
+export type LogbookTable = {
+  id: string;
+  user: string;
+  program: string;
+  workout: string;
+  name: string;
+  date: string;
+  location?: string | null;
+  notes?: string | null;
+  userName?: string;
+  isPublic: boolean;
+}
