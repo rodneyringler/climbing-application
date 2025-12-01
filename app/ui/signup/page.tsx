@@ -1,4 +1,4 @@
-import AcmeLogo from '@/app/ui-components/well-hung-logo';
+import WellHungLogo from '@/app/ui-components/well-hung-logo';
 import SignupForm from '@/app/ui-components/signup-form';
 import { Suspense } from 'react';
 import Image from 'next/image';
@@ -18,9 +18,9 @@ export default function SignupPage() {
       </div>
       
       <div className="relative z-10 mx-auto flex w-full max-w-[400px] flex-col space-y-2.5 p-4 md:-mt-32">
-        <div className="flex h-20 w-full items-end rounded-lg bg-sage-500 p-3 md:h-36">
+        <div className="flex h-48 w-full items-end rounded-lg bg-sage-500 p-3 md:h-48">
           <div className="w-32 text-white md:w-36">
-            <AcmeLogo />
+            <WellHungLogo />
           </div>
         </div>
         <Suspense>
