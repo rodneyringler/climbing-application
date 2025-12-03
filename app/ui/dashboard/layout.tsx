@@ -1,14 +1,17 @@
 import SideNav from '@/app/ui-components/dashboard/sidenav';
 import Image from 'next/image';
+import DashboardSkeleton from '@/app/ui-components/skeletons';
+import DashboardHeader from '@/app/ui-components/dashboard/header';
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex h-screen flex-col md:flex-row md:overflow-hidden">
+      {/* Sidebar */}
       <div className="w-full flex-none md:w-64">
         <SideNav />
       </div>
       <div className="flex-grow p-6 md:overflow-y-auto md:p-12 relative">
-        {/* Subtle bouldering background */}
+        {/* Main Section */}
         <div className="absolute inset-0 z-0 opacity-40">
           <Image
             src="/hero_img3.jpeg"
