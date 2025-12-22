@@ -74,7 +74,6 @@ export type ExerciseTypesTable = {
 export type ProgramItem = {
   id: string;
   user: string;
-  exercise: string;
   name: string;
   description: string;
 };
@@ -96,17 +95,20 @@ export type ProgramExercise = {
 export type ProgramForm = {
   name: string;
   description: string;
+  categories: string[];
   exercises: string[];
   userName?: string;
 };
 
 export type ProgramsTable = {
+  id: string;
   name: string;
   description: string;
   user: string;
   userName?: string;
   exerciseCount: number;
   exercises: ProgramExercise[];
+  categories?: ProgramCategory[];
 };
 
 export type WorkoutItem = {
