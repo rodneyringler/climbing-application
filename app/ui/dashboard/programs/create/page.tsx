@@ -1,6 +1,7 @@
 import CreateProgramForm from '@/app/ui-components/programs/create-form';
 import Breadcrumbs from '@/app/ui-components/dashboard/breadcrumbs';
 import { Exercise } from '@/app/lib/exercise/exercise';
+import { Category } from '@/app/lib/category/category';
 
 export default async function Page() {
   const exercises = await Exercise.fetchAll('');
@@ -9,6 +10,11 @@ export default async function Page() {
     title: exercise.title,
     description: exercise.description,
     exerciseTypeName: exercise.exerciseTypeName,
+  }));
+  const categories = await Category.fetchCategories();
+  const categoriesForForm = categories.map(category => ({
+    id: category.id,
+    name: category.name,
   }));
 
   return (
@@ -23,7 +29,7 @@ export default async function Page() {
           },
         ]}
       />
-      <CreateProgramForm exercises={exercisesForForm} />
+      <CreateProgramForm exercises={exercisesForForm} categories={categoriesForForm} />
     </main>
   );
 }

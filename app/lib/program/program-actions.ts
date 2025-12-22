@@ -10,6 +10,7 @@ import { Program } from './program';
 const ProgramFormSchema = z.object({
   name: z.string().min(1, 'Program name is required'),
   description: z.string().min(1, 'Description is required'),
+  categories: z.array(z.string()).min(1, 'At least one category is required'),  
   exercises: z.array(z.string()).min(1, 'At least one exercise is required'),
 });
 
@@ -20,9 +21,10 @@ const UpdateProgram = ProgramFormSchema.extend({
 
 // Server action functions for form handling
 export async function createProgram(formData: FormData) {
-  const { name, description, exercises } = CreateProgram.parse({
+  const { name, description, categories, exercises } = CreateProgram.parse({
     name: formData.get('name'),
     description: formData.get('description'),
+    categories: formData.get('categories'),
     exercises: formData.getAll('exercises'),
   });
 
@@ -32,7 +34,7 @@ export async function createProgram(formData: FormData) {
     throw new Error('User not authenticated');
   }
 
-  await Program.create(name, description, session.user.id, exercises);
+  await Program.create(name, description, session.user.id, categories, exercises);
 
   revalidatePath('/ui/dashboard/programs');
   redirect('/ui/dashboard/programs');
