@@ -2,6 +2,7 @@ import EditProgramForm from '@/app/ui-components/programs/edit-form';
 import Breadcrumbs from '@/app/ui-components/dashboard/breadcrumbs';
 import { Program } from '@/app/lib/program/program';
 import { Exercise } from '@/app/lib/exercise/exercise';
+import { Category } from '@/app/lib/category/category';
 import { notFound } from 'next/navigation';
 import { auth } from '@/auth';
 
@@ -16,9 +17,10 @@ export default async function Page(props: { params: Promise<{ name: string }> })
     notFound();
   }
 
-  const [program, exercises] = await Promise.all([
+  const [program, exercises, categories] = await Promise.all([
     Program.fetchByNameAndUser(programName, session.user.id),
     Exercise.fetchAll(''),
+    Category.fetchCategories(),
   ]);
 
   if (!program) {
@@ -30,6 +32,11 @@ export default async function Page(props: { params: Promise<{ name: string }> })
     title: exercise.title,
     description: exercise.description,
     exerciseTypeName: exercise.exerciseTypeName,
+  }));
+
+  const categoriesForForm = categories.map(category => ({
+    id: category.id,
+    name: category.name,
   }));
     
   return (
@@ -44,7 +51,7 @@ export default async function Page(props: { params: Promise<{ name: string }> })
           },
         ]}
       />
-      <EditProgramForm program={program} exercises={exercisesForForm} />
+      <EditProgramForm program={program} exercises={exercisesForForm} categories={categoriesForForm} />
     </main>
   );
 }

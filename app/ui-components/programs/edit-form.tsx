@@ -6,10 +6,12 @@ import { ProgramForm } from '@/app/lib/definitions';
 
 export default function EditProgramForm({ 
   program, 
-  exercises 
+  exercises,
+  categories
 }: { 
   program: ProgramForm;
   exercises: { id: string; title: string; description: string; exerciseTypeName?: string }[];
+  categories: { id: string; name: string }[];
 }) {
   const updateProgramWithOldName = updateProgram.bind(null, program.name);
 
@@ -48,6 +50,40 @@ export default function EditProgramForm({
               required
             />
           </div>
+        </div>
+
+        {/* Category Selection */}
+        <div className="mb-4">
+          <label className="mb-2 block text-sm font-medium">
+            Category
+          </label>
+          <div className="mt-2 max-h-60 overflow-y-auto rounded-md border border-gray-200 bg-white p-2">
+            {categories.length === 0 ? (
+              <p className="text-sm text-gray-500">No categories available.</p>
+            ) : (
+              categories.map((category) => (
+                <div key={category.id} className="flex items-start space-x-2 py-2 border-b border-gray-100 last:border-b-0">
+                  <input
+                    id={`category-${category.id}`}
+                    name="categories"
+                    type="checkbox"
+                    value={category.id}
+                    defaultChecked={program.categories.includes(category.id)}
+                    className="h-4 w-4 cursor-pointer border-gray-300 bg-gray-100 text-gray-600 focus:ring-2 mt-0.5"
+                  />
+                  <label
+                    htmlFor={`category-${category.id}`}
+                    className="flex-1 cursor-pointer text-sm"
+                  >
+                    <div className="font-medium text-gray-900">{category.name}</div>
+                  </label>
+                </div>
+              ))
+            )}
+          </div>
+          <p className="mt-1 text-xs text-gray-500">
+            Select at least one category for your program.
+          </p>
         </div>
 
         {/* Exercise Selection */}

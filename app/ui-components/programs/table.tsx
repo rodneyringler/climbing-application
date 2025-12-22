@@ -60,19 +60,36 @@ export default function ProgramsTable({
                 </div>
                 
                 {expandedRows.has(program.name) && (
-                  <div className="mt-4 space-y-2">
-                    <h4 className="text-sm font-medium text-gray-700">Exercises:</h4>
-                    {program.exercises.map((exercise) => (
-                      <div key={exercise.id} className="rounded bg-gray-100 p-2">
-                        <p className="text-sm font-medium">{exercise.title}</p>
-                        <p className="text-xs text-gray-500">
-                          {exercise.exerciseTypeName || exercise.exerciseType}
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          {exercise.sets} sets × {exercise.reps} reps
-                        </p>
+                  <div className="mt-4 space-y-4">
+                    {program.categories && program.categories.length > 0 && (
+                      <div>
+                        <h4 className="text-sm font-medium text-gray-700 mb-2">Categories:</h4>
+                        <div className="flex flex-wrap gap-2">
+                          {program.categories.map((category) => (
+                            <span
+                              key={category.id}
+                              className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800"
+                            >
+                              {category.name}
+                            </span>
+                          ))}
+                        </div>
                       </div>
-                    ))}
+                    )}
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-700 mb-2">Exercises:</h4>
+                      {program.exercises.map((exercise) => (
+                        <div key={exercise.id} className="rounded bg-gray-100 p-2 mb-2">
+                          <p className="text-sm font-medium">{exercise.title}</p>
+                          <p className="text-xs text-gray-500">
+                            {exercise.exerciseTypeName || exercise.exerciseType}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {exercise.sets} sets × {exercise.reps} reps
+                          </p>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
 
@@ -145,28 +162,45 @@ export default function ProgramsTable({
                   {expandedRows.has(program.name) && (
                     <tr>
                       <td colSpan={5} className="px-6 py-4 bg-gray-50">
-                        <div className="space-y-2">
-                          <h4 className="text-sm font-medium text-gray-700">Exercises in this program:</h4>
-                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-                            {program.exercises.map((exercise) => (
-                              <div key={exercise.id} className="bg-white rounded p-3 border">
-                                <p className="text-sm font-medium">{exercise.title}</p>
-                                <p className="text-xs text-gray-500">
-                                  Type: {exercise.exerciseTypeName || exercise.exerciseType}
-                                </p>
-                                <p className="text-xs text-gray-500">
-                                  {exercise.sets} sets × {exercise.reps} reps
-                                </p>
-                                {exercise.isTimed && (
-                                  <p className="text-xs text-gray-500">
-                                    Work: {exercise.workTime}s, Rest: {exercise.restTime}s
-                                  </p>
-                                )}
-                                <p className="text-xs text-gray-500 truncate" title={exercise.description}>
-                                  {exercise.description}
-                                </p>
+                        <div className="space-y-4">
+                          {program.categories && program.categories.length > 0 && (
+                            <div>
+                              <h4 className="text-sm font-medium text-gray-700 mb-2">Categories:</h4>
+                              <div className="flex flex-wrap gap-2">
+                                {program.categories.map((category) => (
+                                  <span
+                                    key={category.id}
+                                    className="inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-800"
+                                  >
+                                    {category.name}
+                                  </span>
+                                ))}
                               </div>
-                            ))}
+                            </div>
+                          )}
+                          <div>
+                            <h4 className="text-sm font-medium text-gray-700 mb-2">Exercises in this program:</h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                              {program.exercises.map((exercise) => (
+                                <div key={exercise.id} className="bg-white rounded p-3 border">
+                                  <p className="text-sm font-medium">{exercise.title}</p>
+                                  <p className="text-xs text-gray-500">
+                                    Type: {exercise.exerciseTypeName || exercise.exerciseType}
+                                  </p>
+                                  <p className="text-xs text-gray-500">
+                                    {exercise.sets} sets × {exercise.reps} reps
+                                  </p>
+                                  {exercise.isTimed && (
+                                    <p className="text-xs text-gray-500">
+                                      Work: {exercise.workTime}s, Rest: {exercise.restTime}s
+                                    </p>
+                                  )}
+                                  <p className="text-xs text-gray-500 truncate" title={exercise.description}>
+                                    {exercise.description}
+                                  </p>
+                                </div>
+                              ))}
+                            </div>
                           </div>
                         </div>
                       </td>

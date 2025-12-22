@@ -17,6 +17,7 @@ const ProgramFormSchema = z.object({
 const CreateProgram = ProgramFormSchema;
 const UpdateProgram = ProgramFormSchema.extend({
   oldName: z.string().min(1, 'Old program name is required'),
+  categories: z.array(z.string()).optional(), // Make categories optional for updates
 });
 
 // Server action functions for form handling
@@ -24,7 +25,7 @@ export async function createProgram(formData: FormData) {
   const { name, description, categories, exercises } = CreateProgram.parse({
     name: formData.get('name'),
     description: formData.get('description'),
-    categories: formData.get('categories'),
+    categories: formData.getAll('categories'),
     exercises: formData.getAll('exercises'),
   });
 
@@ -48,9 +49,10 @@ export async function createProgram(formData: FormData) {
 }
 
 export async function updateProgram(oldName: string, formData: FormData) {
-  const { name, description, exercises } = UpdateProgram.parse({
+  const { name, description, categories, exercises } = UpdateProgram.parse({
     name: formData.get('name'),
     description: formData.get('description'),
+    categories: formData.getAll('categories').length > 0 ? formData.getAll('categories') : undefined,
     exercises: formData.getAll('exercises'),
     oldName: oldName,
   });
@@ -62,7 +64,7 @@ export async function updateProgram(oldName: string, formData: FormData) {
   }
 
   try {
-    await Program.update(oldName, name, description, session.user.id, exercises);
+    await Program.update(oldName, name, description, session.user.id, categories || [], exercises);
   } catch (error: any) {
     console.error(error);
     if (error?.message?.includes('already exists')) {

@@ -6,20 +6,23 @@ export class Program {
   public id: string;
   public name: string;
   public description: string;
-  //public categories: ProgramCategory[];
+  public categories: string[]; // Array of category IDs
+  public categoryDetails: ProgramCategory[]; // Array of category details
   public user: string;
   public exercises: ProgramExercise[];
   
   // Optional properties for joined queries
   public userName?: string;
 
-  constructor(data: ProgramsTable) {
+  constructor(data: ProgramsTable & { categories?: string[]; categoryDetails?: ProgramCategory[] }) {
     this.sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
     this.id = data.id;
     this.name = data.name;
     this.description = data.description;
     this.user = data.user;
     this.exercises = data.exercises;
+    this.categories = data.categories || [];
+    this.categoryDetails = data.categoryDetails || [];
     this.userName = data.userName;
   }
 
@@ -28,6 +31,7 @@ export class Program {
     return {
       name: this.name,
       description: this.description,
+      categories: this.categories,
       exercises: this.exercises.map(ex => ex.id),
       userName: this.userName,
     };
@@ -42,6 +46,7 @@ export class Program {
       userName: this.userName,
       exerciseCount: this.exercises.length,
       exercises: this.exercises,
+      categories: this.categoryDetails,
     };
   }
 
@@ -68,6 +73,17 @@ export class Program {
       }
 
       const programId = programResult[0].id;
+
+      // Insert rows into programcategory table (one per category)
+      if (categoryIds.length > 0) {
+        const categoryPromises = categoryIds.map(categoryId => 
+          sql`
+            INSERT INTO programcategory (program, category)
+            VALUES (${programId}, ${categoryId})
+          `
+        );
+        await Promise.all(categoryPromises);
+      }
 
       // Insert rows into programexercises table (one per exercise)
       if (exerciseIds.length > 0) {
@@ -138,7 +154,28 @@ export class Program {
       return null;
     }
 
-    return new Program(result[0]);
+    // Fetch categories separately
+    const categoriesResult = await sql<{ category: string }[]>`
+      SELECT category
+      FROM programcategory
+      WHERE program = ${result[0].id}
+    `;
+
+    const categoryIds = categoriesResult.map(row => row.category);
+    
+    // Fetch category details
+    const categoryDetails: ProgramCategory[] = categoryIds.length > 0 ? await sql<ProgramCategory[]>`
+      SELECT id, name, description
+      FROM categories
+      WHERE id = ANY(${categoryIds})
+    ` : [];
+
+    const { categories: _, ...programData } = result[0];
+    return new Program({ 
+      ...programData, 
+      categories: categoryIds, 
+      categoryDetails 
+    } as unknown as ProgramsTable & { categories: string[]; categoryDetails: ProgramCategory[] });
   }
 
   static async update(
@@ -146,6 +183,7 @@ export class Program {
     newName: string,
     description: string,
     user: string,
+    categoryIds: string[],
     exerciseIds: string[]
   ): Promise<Program> {
     const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
@@ -165,6 +203,23 @@ export class Program {
         SET name = ${newName}, description = ${description}
         WHERE id = ${programId} AND "user" = ${user}
       `;
+
+      // Delete existing programcategory rows
+      await sql`
+        DELETE FROM programcategory
+        WHERE program = ${programId}
+      `;
+
+      // Insert new programcategory rows
+      if (categoryIds.length > 0) {
+        const categoryPromises = categoryIds.map(categoryId => 
+          sql`
+            INSERT INTO programcategory (program, category)
+            VALUES (${programId}, ${categoryId})
+          `
+        );
+        await Promise.all(categoryPromises);
+      }
 
       // Delete existing programexercises rows
       await sql`
@@ -259,7 +314,33 @@ export class Program {
         LIMIT ${itemsPerPage} OFFSET ${offset}
       `;
       
-      return programs.map(program => new Program(program));
+      // Fetch categories for each program
+      const programsWithCategories = await Promise.all(
+        programs.map(async (program) => {
+          const categoriesResult = await sql<{ category: string }[]>`
+            SELECT category
+            FROM programcategory
+            WHERE program = ${program.id}
+          `;
+          const categoryIds = categoriesResult.map(row => row.category);
+          
+          // Fetch category details
+          const categoryDetails: ProgramCategory[] = categoryIds.length > 0 ? await sql<ProgramCategory[]>`
+            SELECT id, name, description
+            FROM categories
+            WHERE id = ANY(${categoryIds})
+          ` : [];
+          
+          const { categories: _, ...programData } = program;
+          return new Program({ 
+            ...programData, 
+            categories: categoryIds, 
+            categoryDetails 
+          } as unknown as ProgramsTable & { categories: string[]; categoryDetails: ProgramCategory[] });
+        })
+      );
+      
+      return programsWithCategories;
     }
 
     // Sanitize and escape the query to prevent SQL injection
@@ -306,7 +387,33 @@ export class Program {
         LIMIT ${itemsPerPage} OFFSET ${offset}
       `;
 
-      return programs.map(program => new Program(program));
+      // Fetch categories for each program
+      const programsWithCategories = await Promise.all(
+        programs.map(async (program) => {
+          const categoriesResult = await sql<{ category: string }[]>`
+            SELECT category
+            FROM programcategory
+            WHERE program = ${program.id}
+          `;
+          const categoryIds = categoriesResult.map(row => row.category);
+          
+          // Fetch category details
+          const categoryDetails: ProgramCategory[] = categoryIds.length > 0 ? await sql<ProgramCategory[]>`
+            SELECT id, name, description
+            FROM categories
+            WHERE id = ANY(${categoryIds})
+          ` : [];
+          
+          const { categories: _, ...programData } = program;
+          return new Program({ 
+            ...programData, 
+            categories: categoryIds, 
+            categoryDetails 
+          } as unknown as ProgramsTable & { categories: string[]; categoryDetails: ProgramCategory[] });
+        })
+      );
+
+      return programsWithCategories;
     } catch (error) {
       console.error('Error in findFiltered:', error);
       throw error;
