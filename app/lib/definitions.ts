@@ -139,3 +139,21 @@ export type WorkoutsTable = {
   userName?: string;
   programName?: string;
 };
+
+export type CategoryItem = {
+ id: string;
+  name: string;
+ description: string;
+};
+
+export type ProgramCategory = {
+ id: string;
+  name: string;
+ description: string;
+};
+
+export type CategoryForm = {
+ id: string;
+  name: string;
+ description: string;
+};

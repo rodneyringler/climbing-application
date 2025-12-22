@@ -3,8 +3,9 @@
 import { createProgram } from '@/app/lib/program/program-actions';
 import { Button } from '@/app/ui-components/button';
 import { Exercise } from '@/app/lib/exercise/exercise';
+import { Category } from '@/app/lib/category/category';
 
-export default function CreateProgramForm({ exercises }: { exercises: { id: string; title: string; description: string; exerciseTypeName?: string }[] }) {
+export default function CreateProgramForm({ exercises, categories }: { exercises: { id: string; title: string; description: string; exerciseTypeName?: string }[], categories: { id: string; name: string }[] }) {
   return (
     <form action={createProgram}>
       <div className="rounded-md bg-gray-50 p-4 md:p-6">
@@ -39,6 +40,35 @@ export default function CreateProgramForm({ exercises }: { exercises: { id: stri
               className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
               required
             />
+          </div>
+        </div>
+
+        {/* Category */}
+        <div className="mb-4">
+          <label htmlFor="category" className="mb-2 block text-sm font-medium">
+            Category
+          </label>
+          <div className="relative">
+              <option value="" disabled>
+                Select at least one category
+              </option>
+              {categories.map((type) => (
+                <div key={type.id} className="flex items-start space-x-2 py-2 border-b border-gray-100 last:border-b-0">
+                  <input
+                    id={`category-${type.id}`}
+                    name="categories"
+                    type="checkbox"
+                    value={type.id}
+                    className="h-4 w-4 cursor-pointer border-gray-300 bg-gray-100 text-gray-600 focus:ring-2 mt-0.5"
+                  />
+                  <label
+                    htmlFor={`category-${type.id}`}
+                    className="flex-1 cursor-pointer text-sm"
+                  >
+                    <div className="font-medium text-gray-900">{type.name}</div>
+                  </label>
+                </div>
+              ))}
           </div>
         </div>
 

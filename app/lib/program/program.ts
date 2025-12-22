@@ -1,10 +1,11 @@
 import postgres from 'postgres';
-import { ProgramItem, ProgramForm, ProgramsTable, ProgramExercise } from '@/app/lib/definitions';
+import { ProgramItem, ProgramForm, ProgramsTable, ProgramCategory, ProgramExercise } from '@/app/lib/definitions';
 
 export class Program {
   private sql: postgres.Sql;
   public name: string;
   public description: string;
+  //public categories: ProgramCategory[];
   public user: string;
   public exercises: ProgramExercise[];
   
@@ -46,6 +47,7 @@ export class Program {
     name: string,
     description: string,
     user: string,
+    categoryIds: string[],
     exerciseIds: string[]
   ): Promise<Program> {
     const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
