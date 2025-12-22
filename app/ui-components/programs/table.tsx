@@ -29,7 +29,7 @@ export default function ProgramsTable({
           <div className="md:hidden">
             {programs?.map((program) => (
               <div
-                key={`${program.name}-${program.user}`}
+                key={program.id}
                 className="mb-2 w-full rounded-md bg-white p-4"
               >
                 <div className="flex items-center justify-between border-b pb-4">
@@ -105,7 +105,7 @@ export default function ProgramsTable({
             </thead>
             <tbody className="bg-white">
               {programs?.map((program) => (
-                <React.Fragment key={`${program.name}-${program.user}`}>
+                <React.Fragment key={program.id}>
                   <tr
                     className="w-full border-b py-3 text-sm last-of-type:border-none [&:first-child>td:first-child]:rounded-tl-lg [&:first-child>td:last-child]:rounded-tr-lg [&:last-child>td:first-child]:rounded-bl-lg [&:last-child>td:last-child]:rounded-br-lg"
                   >

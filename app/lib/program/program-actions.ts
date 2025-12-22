@@ -34,7 +34,14 @@ export async function createProgram(formData: FormData) {
     throw new Error('User not authenticated');
   }
 
-  await Program.create(name, description, session.user.id, categories, exercises);
+  try {
+    await Program.create(name, description, session.user.id, categories, exercises);
+  } catch (error: any) {
+    if (error?.message?.includes('already exists')) {
+      throw error;
+    }
+    throw error;
+  }
 
   revalidatePath('/ui/dashboard/programs');
   redirect('/ui/dashboard/programs');
@@ -56,8 +63,11 @@ export async function updateProgram(oldName: string, formData: FormData) {
 
   try {
     await Program.update(oldName, name, description, session.user.id, exercises);
-  } catch (error) {
+  } catch (error: any) {
     console.error(error);
+    if (error?.message?.includes('already exists')) {
+      throw error;
+    }
   }
 
   revalidatePath('/ui/dashboard/programs');

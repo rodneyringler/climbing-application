@@ -3,6 +3,7 @@ import { ProgramItem, ProgramForm, ProgramsTable, ProgramCategory, ProgramExerci
 
 export class Program {
   private sql: postgres.Sql;
+  public id: string;
   public name: string;
   public description: string;
   //public categories: ProgramCategory[];
@@ -14,6 +15,7 @@ export class Program {
 
   constructor(data: ProgramsTable) {
     this.sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
+    this.id = data.id;
     this.name = data.name;
     this.description = data.description;
     this.user = data.user;
@@ -33,6 +35,7 @@ export class Program {
 
   toTableFormat(): ProgramsTable {
     return {
+      id: this.id,
       name: this.name,
       description: this.description,
       user: this.user,
@@ -52,24 +55,45 @@ export class Program {
   ): Promise<Program> {
     const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 
-    // Insert multiple rows for each exercise in the program
-    const insertPromises = exerciseIds.map(exerciseId => 
-      sql<ProgramItem[]>`
-        INSERT INTO programs (id, "user", exercise, name, description)
-        VALUES (gen_random_uuid(), ${user}, ${exerciseId}, ${name}, ${description})
+    try {
+      // Insert one row into programs table
+      const programResult = await sql<ProgramItem[]>`
+        INSERT INTO programs (id, "user", name, description)
+        VALUES (gen_random_uuid(), ${user}, ${name}, ${description})
         RETURNING *
-      `
-    );
+      `;
 
-    await Promise.all(insertPromises);
+      if (programResult.length === 0) {
+        throw new Error('Failed to create program');
+      }
 
-    // Fetch the created program with exercises
-    const program = await Program.findByNameAndUser(name, user);
-    if (!program) {
-      throw new Error('Failed to create program');
+      const programId = programResult[0].id;
+
+      // Insert rows into programexercises table (one per exercise)
+      if (exerciseIds.length > 0) {
+        const insertPromises = exerciseIds.map(exerciseId => 
+          sql`
+            INSERT INTO programexercises (program, exercise)
+            VALUES (${programId}, ${exerciseId})
+          `
+        );
+        await Promise.all(insertPromises);
+      }
+
+      // Fetch the created program with exercises
+      const program = await Program.findByNameAndUser(name, user);
+      if (!program) {
+        throw new Error('Failed to create program');
+      }
+
+      return program;
+    } catch (error: any) {
+      // Handle unique constraint violation for program name
+      if (error?.code === '23505' || error?.message?.includes('unique')) {
+        throw new Error('A program with this name already exists');
+      }
+      throw error;
     }
-
-    return program;
   }
 
   static async findByNameAndUser(name: string, user: string): Promise<Program | null> {
@@ -77,32 +101,37 @@ export class Program {
     
     const result = await sql<ProgramsTable[]>`
       SELECT
+        programs.id,
         programs.name,
         programs.description,
         programs."user",
         users.name as "userName",
-        COUNT(programs.exercise) as "exerciseCount",
-        ARRAY_AGG(
-          JSON_BUILD_OBJECT(
-            'id', exercises.id,
-            'title', exercises.title,
-            'exerciseType', exercises.exercisetype,
-            'exerciseTypeName', exercisetypes.name,
-            'isTimed', exercises.istimed,
-            'reps', exercises.reps,
-            'sets', exercises.sets,
-            'restTime', exercises.resttime,
-            'workTime', exercises.worktime,
-            'isPublic', exercises.ispublic,
-            'description', exercises.description
-          )
+        COUNT(programexercises.exercise) as "exerciseCount",
+        COALESCE(
+          ARRAY_AGG(
+            JSON_BUILD_OBJECT(
+              'id', exercises.id,
+              'title', exercises.title,
+              'exerciseType', exercises.exercisetype,
+              'exerciseTypeName', exercisetypes.name,
+              'isTimed', exercises.istimed,
+              'reps', exercises.reps,
+              'sets', exercises.sets,
+              'restTime', exercises.resttime,
+              'workTime', exercises.worktime,
+              'isPublic', exercises.ispublic,
+              'description', exercises.description
+            )
+          ) FILTER (WHERE exercises.id IS NOT NULL),
+          ARRAY[]::json[]
         ) as exercises
       FROM programs
-      INNER JOIN exercises ON programs.exercise = exercises.id
-      INNER JOIN exercisetypes ON exercises.exercisetype = exercisetypes.id
+      LEFT JOIN programexercises ON programs.id = programexercises.program
+      LEFT JOIN exercises ON programexercises.exercise = exercises.id
+      LEFT JOIN exercisetypes ON exercises.exercisetype = exercisetypes.id
       INNER JOIN users ON programs."user" = users.id
       WHERE programs.name = ${name} AND programs."user" = ${user}
-      GROUP BY programs.name, programs.description, programs."user", users.name
+      GROUP BY programs.id, programs.name, programs.description, programs."user", users.name
     `;
 
     if (result.length === 0) {
@@ -121,33 +150,71 @@ export class Program {
   ): Promise<Program> {
     const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 
-    // Delete existing program rows
-    await sql`DELETE FROM programs WHERE name = ${oldName} AND "user" = ${user}`;
+    try {
+      // Find the existing program to get its ID
+      const existingProgram = await Program.findByNameAndUser(oldName, user);
+      if (!existingProgram) {
+        throw new Error('Program not found');
+      }
 
-    // Insert new program rows
-    const insertPromises = exerciseIds.map(exerciseId => 
-      sql<ProgramItem[]>`
-        INSERT INTO programs (id, "user", exercise, name, description)
-        VALUES (gen_random_uuid(), ${user}, ${exerciseId}, ${newName}, ${description})
-        RETURNING *
-      `
-    );
+      const programId = existingProgram.id;
 
-    await Promise.all(insertPromises);
+      // Update the program row
+      await sql`
+        UPDATE programs
+        SET name = ${newName}, description = ${description}
+        WHERE id = ${programId} AND "user" = ${user}
+      `;
 
-    // Fetch the updated program
-    const program = await Program.findByNameAndUser(newName, user);
-    if (!program) {
-      throw new Error('Failed to update program');
+      // Delete existing programexercises rows
+      await sql`
+        DELETE FROM programexercises
+        WHERE program = ${programId}
+      `;
+
+      // Insert new programexercises rows
+      if (exerciseIds.length > 0) {
+        const insertPromises = exerciseIds.map(exerciseId => 
+          sql`
+            INSERT INTO programexercises (program, exercise)
+            VALUES (${programId}, ${exerciseId})
+          `
+        );
+        await Promise.all(insertPromises);
+      }
+
+      // Fetch the updated program
+      const program = await Program.findByNameAndUser(newName, user);
+      if (!program) {
+        throw new Error('Failed to update program');
+      }
+
+      return program;
+    } catch (error: any) {
+      // Handle unique constraint violation for program name
+      if (error?.code === '23505' || error?.message?.includes('unique')) {
+        throw new Error('A program with this name already exists');
+      }
+      throw error;
     }
-
-    return program;
   }
 
   static async delete(name: string, user: string): Promise<void> {
     const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
     
-    await sql`DELETE FROM programs WHERE name = ${name} AND "user" = ${user}`;
+    // Find the program to get its ID
+    const program = await Program.findByNameAndUser(name, user);
+    if (!program) {
+      throw new Error('Program not found');
+    }
+
+    const programId = program.id;
+
+    // Delete from programexercises first (foreign key constraint)
+    await sql`DELETE FROM programexercises WHERE program = ${programId}`;
+    
+    // Delete from programs table
+    await sql`DELETE FROM programs WHERE id = ${programId} AND "user" = ${user}`;
   }
 
   static async findFiltered(query: string, page: number, itemsPerPage: number): Promise<Program[]> {
@@ -158,31 +225,36 @@ export class Program {
     if (!query || query.trim() === '') {
       const programs = await sql<ProgramsTable[]>`
         SELECT
+          programs.id,
           programs.name,
           programs.description,
           programs."user",
           users.name as "userName",
-          COUNT(programs.exercise) as "exerciseCount",
-          ARRAY_AGG(
-            JSON_BUILD_OBJECT(
-              'id', exercises.id,
-              'title', exercises.title,
-              'exerciseType', exercises.exercisetype,
-              'exerciseTypeName', exercisetypes.name,
-              'isTimed', exercises.istimed,
-              'reps', exercises.reps,
-              'sets', exercises.sets,
-              'restTime', exercises.resttime,
-              'workTime', exercises.worktime,
-              'isPublic', exercises.ispublic,
-              'description', exercises.description
-            )
+          COUNT(programexercises.exercise) as "exerciseCount",
+          COALESCE(
+            ARRAY_AGG(
+              JSON_BUILD_OBJECT(
+                'id', exercises.id,
+                'title', exercises.title,
+                'exerciseType', exercises.exercisetype,
+                'exerciseTypeName', exercisetypes.name,
+                'isTimed', exercises.istimed,
+                'reps', exercises.reps,
+                'sets', exercises.sets,
+                'restTime', exercises.resttime,
+                'workTime', exercises.worktime,
+                'isPublic', exercises.ispublic,
+                'description', exercises.description
+              )
+            ) FILTER (WHERE exercises.id IS NOT NULL),
+            ARRAY[]::json[]
           ) as exercises
         FROM programs
-        INNER JOIN exercises ON programs.exercise = exercises.id
-        INNER JOIN exercisetypes ON exercises.exercisetype = exercisetypes.id
+        LEFT JOIN programexercises ON programs.id = programexercises.program
+        LEFT JOIN exercises ON programexercises.exercise = exercises.id
+        LEFT JOIN exercisetypes ON exercises.exercisetype = exercisetypes.id
         INNER JOIN users ON programs."user" = users.id
-        GROUP BY programs.name, programs.description, programs."user", users.name
+        GROUP BY programs.id, programs.name, programs.description, programs."user", users.name
         ORDER BY programs.name ASC
         LIMIT ${itemsPerPage} OFFSET ${offset}
       `;
@@ -197,34 +269,39 @@ export class Program {
     try {
       const programs = await sql<ProgramsTable[]>`
         SELECT
+          programs.id,
           programs.name,
           programs.description,
           programs."user",
           users.name as "userName",
-          COUNT(programs.exercise) as "exerciseCount",
-          ARRAY_AGG(
-            JSON_BUILD_OBJECT(
-              'id', exercises.id,
-              'title', exercises.title,
-              'exerciseType', exercises.exercisetype,
-              'exerciseTypeName', exercisetypes.name,
-              'isTimed', exercises.istimed,
-              'reps', exercises.reps,
-              'sets', exercises.sets,
-              'restTime', exercises.resttime,
-              'workTime', exercises.worktime,
-              'isPublic', exercises.ispublic,
-              'description', exercises.description
-            )
+          COUNT(programexercises.exercise) as "exerciseCount",
+          COALESCE(
+            ARRAY_AGG(
+              JSON_BUILD_OBJECT(
+                'id', exercises.id,
+                'title', exercises.title,
+                'exerciseType', exercises.exercisetype,
+                'exerciseTypeName', exercisetypes.name,
+                'isTimed', exercises.istimed,
+                'reps', exercises.reps,
+                'sets', exercises.sets,
+                'restTime', exercises.resttime,
+                'workTime', exercises.worktime,
+                'isPublic', exercises.ispublic,
+                'description', exercises.description
+              )
+            ) FILTER (WHERE exercises.id IS NOT NULL),
+            ARRAY[]::json[]
           ) as exercises
         FROM programs
-        INNER JOIN exercises ON programs.exercise = exercises.id
-        INNER JOIN exercisetypes ON exercises.exercisetype = exercisetypes.id
+        LEFT JOIN programexercises ON programs.id = programexercises.program
+        LEFT JOIN exercises ON programexercises.exercise = exercises.id
+        LEFT JOIN exercisetypes ON exercises.exercisetype = exercisetypes.id
         INNER JOIN users ON programs."user" = users.id
         WHERE
           programs.name ILIKE ${searchPattern} OR
           programs.description ILIKE ${searchPattern}
-        GROUP BY programs.name, programs.description, programs."user", users.name
+        GROUP BY programs.id, programs.name, programs.description, programs."user", users.name
         ORDER BY programs.name ASC
         LIMIT ${itemsPerPage} OFFSET ${offset}
       `;
@@ -241,7 +318,7 @@ export class Program {
 
     // Handle empty query case
     if (!query || query.trim() === '') {
-      const data = await sql`SELECT COUNT(DISTINCT CONCAT(programs.name, '|', programs."user"))
+      const data = await sql`SELECT COUNT(*)
         FROM programs
       `;
       return Number(data[0].count);
@@ -252,7 +329,7 @@ export class Program {
     const searchPattern = `%${sanitizedQuery}%`;
 
     try {
-      const data = await sql`SELECT COUNT(DISTINCT CONCAT(programs.name, '|', programs."user"))
+      const data = await sql`SELECT COUNT(*)
         FROM programs
         WHERE
           programs.name ILIKE ${searchPattern} OR
