@@ -144,9 +144,20 @@ export type WorkoutsTable = {
 
 export type CategoryItem = {
  id: string;
-  name: string;
+ name: string;
  description: string;
+ programs: ProgramItem[];
+ imageUrl: string;
 };
+
+export type CategoryCard = {
+  id: string;
+  name: string;
+  programDescriptions: string[];
+  programNames: string[];
+  categoryDescription: string;
+
+}
 
 export type ProgramCategory = {
  id: string;

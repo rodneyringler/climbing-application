@@ -1,33 +1,18 @@
-'use client';
 import Image from "next/image"
+import { Category } from "@/app/lib/category/category";
+import { lusitana } from "@/app/ui-components/fonts";
+import Link from "next/link";
+import CategoriesTable from "@/app/ui-components/categories/table";
 
 
-
-export default function () {
-  // Your code here
+export default async function Page() {
+  const categories = await Category.findAll();
   return (
     <div>
-        <h1> Workshop </h1>
-
-    <div>Column 1
-        <Image src="/power.jpg" alt="Strength and Power" height={77} width={90}></Image>
-    </div>
-    <div>Column 2
-        <Image src="/public/endurance.jpg" alt="Endurance" height={40} width={40}></Image>
-    </div>
-    <div>Column 3
-        <Image src="/public/mobility.jpg" alt="Mobility" height={40} width={40}></Image>
-    </div>
-    <div>Column 4
-        <Image src="/conditioning.jpg" alt="Conditioning" height={40} width={40}></Image>
-    </div>
-    <div>Column 5
-        <Image src="/technique.jpg" alt="Technique" height={40} width={40}></Image>
-    </div>
-
-
+    <h1 className={`${lusitana.className} mb-4 text-xl md:text-2xl`}>
+                Categories
+    </h1>
+    <CategoriesTable categories={categories} />
     </div>
   )
 }
-
-

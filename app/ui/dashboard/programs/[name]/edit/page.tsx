@@ -20,7 +20,7 @@ export default async function Page(props: { params: Promise<{ name: string }> })
   const [program, exercises, categories] = await Promise.all([
     Program.fetchByNameAndUser(programName, session.user.id),
     Exercise.fetchAll(''),
-    Category.fetchCategories(),
+    Category.findAll(),
   ]);
 
   if (!program) {
