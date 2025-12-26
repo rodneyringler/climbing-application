@@ -1,20 +1,24 @@
 import postgres from 'postgres';
-import { CategoryItem, ExerciseTypesTable } from '../definitions';
+import { CategoryCard, CategoryItem, ExerciseTypesTable, ProgramItem } from '../definitions';
 
 export class Category {
   private sql: postgres.Sql;
   public id: string;
   public name: string;
   public description: string;
+  public programs: ProgramItem[];
+  public imageUrl: string;
 
   constructor(data: CategoryItem) {
     this.sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
     this.id = data.id;
     this.name = data.name;
     this.description = data.description;
+    this.programs = data.programs;
+    this.imageUrl = `${this.name.toLowerCase()}.jpg`;
   }
 
-  static async findById(id: string): Promise<Category | null> {
+  static async findById(id: string): Promise<CategoryItem | null> {
     const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
     
     const result = await sql<CategoryItem[]>`
@@ -30,64 +34,45 @@ export class Category {
       return null;
     }
 
-    return new Category(result[0]);
+    const category = result[0];
+    const programs = await sql<ProgramItem[]>`
+      SELECT
+        programs.id,
+        programs.name,
+        programs.description
+        FROM programs
+        INNER JOIN programcategory ON programs.id = programcategory.program
+        WHERE programcategory.category = ${category.id}
+    `;
+
+    return { ...category, imageUrl: `${category.name.toLowerCase()}.jpg`, programs };
   }
 
-  static async findAll(): Promise<Category[]> {
+  static async findAll(): Promise<CategoryItem[]> {
     const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 
     const data = await sql<CategoryItem[]>`
-      SELECT *
+      SELECT id, name, description
       FROM categories
       ORDER BY name ASC
     `;
 
-    return data.map(category => new Category(category));
-  }
+    const categories = data.map(category => ({ ...category, imageUrl: `${category.name.toLowerCase()}.jpg`, programs: [] as ProgramItem[] }));
 
-  static async findFiltered(query: string, page: number, itemsPerPage: number): Promise<Category[]> {
-    const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
-    const offset = (page - 1) * itemsPerPage;
-
-    const categories = await sql<CategoryItem[]>`
+    for (const category of categories) {
+      const programs = await sql<ProgramItem[]>`
       SELECT
-        categories.id,
-        categories.name,
-        categories.description
-      FROM categories
-      WHERE
-        categories.name ILIKE ${`%${query}%`} OR
-        categories.description ILIKE ${`%${query}%`}
-      ORDER BY categories.name ASC
-      LIMIT ${itemsPerPage} OFFSET ${offset}
-    `;
-
-    return categories.map(category => new Category(category));
-  }
-/*
-  static async countFiltered(query: string): Promise<number> {
-    const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
-
-    const data = await sql`SELECT COUNT(*)
-      FROM categories
-      WHERE
-        categories.name ILIKE ${`%${query}%`} OR
-        categories.description ILIKE ${`%${query}%`}
-    `;
-
-    return Number(data[0].count);
-  }
-*/
-  static async fetchCategories() {
-    try {
-      const categories = await Category.findAll();
-      return categories.map(category => ({
-        id: category.id,
-        name: category.name,
-      }));
-    } catch (error) {
-      console.error('Database Error:', error);
-      throw new Error('Failed to fetch categories.');
+        programs.id,
+        programs.name,
+        programs.description
+        FROM programs
+        INNER JOIN programcategory ON programs.id = programcategory.program
+        WHERE programcategory.category = ${category.id}
+      `;
+      category.programs = programs;
     }
+
+    return categories;
   }
+
 }

@@ -11,7 +11,7 @@ export default async function Page() {
     description: exercise.description,
     exerciseTypeName: exercise.exerciseTypeName,
   }));
-  const categories = await Category.fetchCategories();
+  const categories = await Category.findAll();
   const categoriesForForm = categories.map(category => ({
     id: category.id,
     name: category.name,
