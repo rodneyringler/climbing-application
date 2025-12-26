@@ -20,7 +20,7 @@ export default function CategoriesTable({
                         <div>
                             <h3 className={`${lusitana.className} text-lg left-2`}>{category.name}</h3>
                             <p>{category.imageUrl}</p>
-                            <img src={`/${category.imageUrl}`} alt={category.description} width={100} height={100}></img>
+                            <Image src={`/${category.imageUrl}`} alt={category.description} width={100} height={100}/>
                         </div>
                         
 
