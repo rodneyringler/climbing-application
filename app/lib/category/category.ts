@@ -1,3 +1,5 @@
+//Ading a comment to test a direct deploy.
+
 import postgres from 'postgres';
 import { CategoryCard, CategoryItem, ExerciseTypesTable, ProgramItem } from '../definitions';
 
