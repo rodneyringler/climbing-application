@@ -19,7 +19,6 @@ export default function CategoriesTable({
                     <div key={category.id} className="md:h-220 m-1 hover:ml-8 hover:w-full rounded-md bg-stone-400">
                         <div>
                             <h3 className={`${lusitana.className} text-lg left-2`}>{category.name}</h3>
-                            <p>{category.imageUrl}</p>
                             <img src={`/${category.imageUrl}`} alt={category.description} width={100} height={100}/>
                         </div>
                         
