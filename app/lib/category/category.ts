@@ -15,7 +15,7 @@ export class Category {
     this.name = data.name;
     this.description = data.description;
     this.programs = data.programs;
-    this.imageUrl = `${this.name.toLowerCase()}.jpg`;
+    this.imageUrl = `${this.name.toLowerCase()}.png`;
   }
 
   static async findById(id: string): Promise<CategoryItem | null> {
@@ -45,7 +45,7 @@ export class Category {
         WHERE programcategory.category = ${category.id}
     `;
 
-    return { ...category, imageUrl: `${category.name.toLowerCase()}.jpg`, programs };
+    return { ...category, imageUrl: `${category.name.toLowerCase()}.png`, programs };
   }
 
   static async findAll(): Promise<CategoryItem[]> {
@@ -57,7 +57,7 @@ export class Category {
       ORDER BY name ASC
     `;
 
-    const categories = data.map(category => ({ ...category, imageUrl: `${category.name.toLowerCase()}.jpg`, programs: [] as ProgramItem[] }));
+    const categories = data.map(category => ({ ...category, imageUrl: `${category.name.toLowerCase()}.png`, programs: [] as ProgramItem[] }));
 
     for (const category of categories) {
       const programs = await sql<ProgramItem[]>`
