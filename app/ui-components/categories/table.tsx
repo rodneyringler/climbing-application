@@ -18,7 +18,7 @@ export default function CategoriesTable({
                 {categories?.map((category) => (
                     <div key={category.id} className="md:h-220 m-1 hover:ml-8 hover:w-full rounded-md bg-stone-300">
                         <div className="flex flex-row">
-                            <div className="border-stone-400 rounded-md border-2 w-24 bg-stone-200">
+                            <div className="border-stone-500 rounded-md border-2 w-24 bg-stone-200">
                                 <h3 className={`${lusitana.className} text-lg left-2`}>{category.name}</h3>
                                 <img src={`/${category.imageUrl}`} alt={category.description} className="pleft-4 w-24 h-24"/>
                             </div>
