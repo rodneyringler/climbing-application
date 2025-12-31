@@ -1,4 +1,5 @@
 'use client';
+// UI COMPONENTS
 import { Category } from "@/app/lib/category/category";
 import { lusitana } from "@/app/ui-components/fonts";
 import Link from "next/link";
