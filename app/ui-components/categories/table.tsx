@@ -16,14 +16,21 @@ export default function CategoriesTable({
             <header className="bg-stone-100 p-4 rounded-md">Get Started With Pre-Made Plans:</header>
             <main className="bg-white p-4 rounded-lg overflow-auto">
                 {categories?.map((category) => (
-                    <div key={category.id} className="md:h-220 m-1 hover:ml-8 hover:w-full rounded-md bg-stone-400">
-                        <div>
-                            <h3 className={`${lusitana.className} text-lg left-2`}>{category.name}</h3>
-                            <p>{category.imageUrl}</p>
-                            <img src={`/${category.imageUrl}`} alt={category.description} width={100} height={100}/>
+                    <div key={category.id} className="md:h-220 m-1 hover:ml-8 hover:w-full rounded-md bg-stone-300">
+                        <div className="flex flex-row">
+                            <div className="border-stone-400 rounded-md border-2 w-24 bg-stone-200">
+                                <h3 className={`${lusitana.className} text-lg left-2`}>{category.name}</h3>
+                                <img src={`/${category.imageUrl}`} alt={category.description} className="pleft-4 w-24 h-24"/>
+                            </div>
+                        {category.programs?.map((program) => (
+                            <a href={`/programs/${program.name}`} className="p-2 m-2" key={program.id}>
+                                <div className={`p-2 w-24 h-24 border-2 group rounded-md bg-stone-400 hover:bg-stone-500 hover:w-full`}>
+                                    <h4 className="text-md">{program.name}</h4>
+                                    <p className="text-white hidden group-hover:block">{program.description}</p>
+                                </div>
+                            </a>
+                        ))}
                         </div>
-                        
-
                     </div>
                 ))}
             </main>
