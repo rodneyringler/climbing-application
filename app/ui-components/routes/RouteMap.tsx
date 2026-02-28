@@ -356,15 +356,17 @@ function InfoField({
   label,
   value,
   highlight,
+  muted,
 }: {
   label: string;
   value: string;
   highlight?: boolean;
+  muted?: boolean;
 }) {
   return (
     <div>
       <dt className="text-xs text-stone-400 mb-0.5">{label}</dt>
-      <dd className={`text-sm font-medium ${highlight ? 'text-sage-600' : 'text-stone-700'}`}>
+      <dd className={`text-sm font-medium ${highlight ? 'text-sage-600' : muted ? 'text-stone-400 italic' : 'text-stone-700'}`}>
         {value}
       </dd>
     </div>
@@ -379,9 +381,6 @@ function ClimbDetail({ climb, onBack }: { climb: Climb; onBack: () => void }) {
   const pitches = climb.pitches ?? [];
   const mpId = climb.metadata?.mp_id;
 
-  // Temporary debug — remove once confirmed working
-  console.log('[ClimbDetail]', climb.name, { length: climb.length, boltsCount: climb.boltsCount, photos: photos.length, pitches: pitches.length, mpId });
-
   return (
     <div>
       <button
@@ -391,28 +390,6 @@ function ClimbDetail({ climb, onBack }: { climb: Climb; onBack: () => void }) {
         <ArrowLeftIcon className="w-3.5 h-3.5" />
         Back to routes
       </button>
-
-      {/* ── Photos ── */}
-      {photos.length > 0 && (
-        <div className="flex gap-2 overflow-x-auto pb-2 mb-3 -mx-1 px-1">
-          {photos.map((photo, i) => (
-            <a
-              key={i}
-              href={getMediaUrl(photo.mediaUrl)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex-none"
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={getMediaUrl(photo.mediaUrl)}
-                alt={`${climb.name} photo ${i + 1}`}
-                className="h-36 w-auto rounded-lg object-cover border border-stone-200"
-              />
-            </a>
-          ))}
-        </div>
-      )}
 
       <div className="bg-white rounded-lg border border-stone-200 p-4 space-y-4">
         {/* ── Name & breadcrumb ── */}
@@ -427,16 +404,22 @@ function ClimbDetail({ climb, onBack }: { climb: Climb; onBack: () => void }) {
         <dl className="grid grid-cols-2 gap-x-4 gap-y-3">
           <InfoField label="Grade" value={grade} highlight />
           <InfoField label="Type" value={types} />
-          {climb.length != null && climb.length !== -1 && (
-            <InfoField label="Length" value={`${climb.length} m`} />
-          )}
-          {climb.boltsCount != null && climb.boltsCount !== -1 && (
-            <InfoField label="Bolts" value={String(climb.boltsCount)} />
-          )}
-          {climb.fa && <InfoField label="First Ascent" value={climb.fa} />}
-          {climb.safety && climb.safety !== 'UNSPECIFIED' && (
-            <InfoField label="Safety" value={climb.safety} />
-          )}
+          <InfoField
+            label="Length"
+            value={climb.length != null && climb.length !== -1 ? `${climb.length} m` : 'No data'}
+            muted={climb.length == null || climb.length === -1}
+          />
+          <InfoField
+            label="Bolts"
+            value={climb.boltsCount != null && climb.boltsCount !== -1 ? String(climb.boltsCount) : 'No data'}
+            muted={climb.boltsCount == null || climb.boltsCount === -1}
+          />
+          <InfoField label="First Ascent" value={climb.fa || 'No data'} muted={!climb.fa} />
+          <InfoField
+            label="Safety"
+            value={climb.safety && climb.safety !== 'UNSPECIFIED' ? climb.safety : 'No data'}
+            muted={!climb.safety || climb.safety === 'UNSPECIFIED'}
+          />
         </dl>
 
         {/* ── All grade systems (when more than one is present) ── */}
@@ -460,39 +443,42 @@ function ClimbDetail({ climb, onBack }: { climb: Climb; onBack: () => void }) {
         )}
 
         {/* ── Text content ── */}
-        {climb.content?.description && (
-          <div>
-            <h3 className="text-xs font-semibold text-stone-500 uppercase tracking-wide mb-1.5">
-              Description
-            </h3>
-            <p className="text-sm text-stone-700 leading-relaxed">{climb.content.description}</p>
-          </div>
-        )}
+        <div>
+          <h3 className="text-xs font-semibold text-stone-500 uppercase tracking-wide mb-1.5">
+            Description
+          </h3>
+          {climb.content?.description
+            ? <p className="text-sm text-stone-700 leading-relaxed">{climb.content.description}</p>
+            : <p className="text-sm text-stone-400 italic">No data</p>
+          }
+        </div>
 
-        {climb.content?.location && (
-          <div>
-            <h3 className="text-xs font-semibold text-stone-500 uppercase tracking-wide mb-1.5">
-              Getting There
-            </h3>
-            <p className="text-sm text-stone-700 leading-relaxed">{climb.content.location}</p>
-          </div>
-        )}
+        <div>
+          <h3 className="text-xs font-semibold text-stone-500 uppercase tracking-wide mb-1.5">
+            Getting There
+          </h3>
+          {climb.content?.location
+            ? <p className="text-sm text-stone-700 leading-relaxed">{climb.content.location}</p>
+            : <p className="text-sm text-stone-400 italic">No data</p>
+          }
+        </div>
 
-        {climb.content?.protection && (
-          <div>
-            <h3 className="text-xs font-semibold text-stone-500 uppercase tracking-wide mb-1.5">
-              Protection
-            </h3>
-            <p className="text-sm text-stone-700 leading-relaxed">{climb.content.protection}</p>
-          </div>
-        )}
+        <div>
+          <h3 className="text-xs font-semibold text-stone-500 uppercase tracking-wide mb-1.5">
+            Protection
+          </h3>
+          {climb.content?.protection
+            ? <p className="text-sm text-stone-700 leading-relaxed">{climb.content.protection}</p>
+            : <p className="text-sm text-stone-400 italic">No data</p>
+          }
+        </div>
 
-        {/* ── Pitches (multi-pitch routes) ── */}
-        {pitches.length > 0 && (
-          <div>
-            <h3 className="text-xs font-semibold text-stone-500 uppercase tracking-wide mb-2">
-              Pitches
-            </h3>
+        {/* ── Pitches ── */}
+        <div>
+          <h3 className="text-xs font-semibold text-stone-500 uppercase tracking-wide mb-2">
+            Pitches
+          </h3>
+          {pitches.length > 0 ? (
             <div className="space-y-2">
               {pitches.map((pitch) => (
                 <div
@@ -528,8 +514,39 @@ function ClimbDetail({ climb, onBack }: { climb: Climb; onBack: () => void }) {
                 </div>
               ))}
             </div>
-          </div>
-        )}
+          ) : (
+            <p className="text-sm text-stone-400 italic">No data</p>
+          )}
+        </div>
+
+        {/* ── Photos ── */}
+        <div>
+          <h3 className="text-xs font-semibold text-stone-500 uppercase tracking-wide mb-2">
+            Photos
+          </h3>
+          {photos.length > 0 ? (
+            <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
+              {photos.map((photo, i) => (
+                <a
+                  key={i}
+                  href={getMediaUrl(photo.mediaUrl)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-none"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={getMediaUrl(photo.mediaUrl)}
+                    alt={`${climb.name} photo ${i + 1}`}
+                    className="h-32 w-auto rounded-lg object-cover border border-stone-200"
+                  />
+                </a>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-stone-400 italic">No data</p>
+          )}
+        </div>
 
         {/* ── Mountain Project link ── */}
         {mpId && (
