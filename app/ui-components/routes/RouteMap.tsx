@@ -11,6 +11,32 @@ interface ClimbGrades {
   vscale?: string | null;
   french?: string | null;
   ewbank?: string | null;
+  font?: string | null;
+  uiaa?: string | null;
+  wi?: string | null;
+  brazilianCrux?: string | null;
+}
+
+interface ClimbMedia {
+  mediaUrl: string;
+  width: number;
+  height: number;
+}
+
+interface Pitch {
+  id: string;
+  pitchNumber: number;
+  grades?: ClimbGrades | null;
+  type?: ClimbType | null;
+  length?: number | null;
+  boltsCount?: number | null;
+  description?: string | null;
+}
+
+interface ClimbMetadata {
+  lat?: number | null;
+  lng?: number | null;
+  mp_id?: string | null;
 }
 
 interface ClimbType {
@@ -42,6 +68,9 @@ interface Climb {
   safety?: string | null;
   content?: ClimbContent | null;
   pathTokens?: string[] | null;
+  media?: ClimbMedia[] | null;
+  pitches?: Pitch[] | null;
+  metadata?: ClimbMetadata | null;
 }
 
 interface CragMetadata {
@@ -75,7 +104,27 @@ function getClimbTypes(type?: ClimbType | null): string {
 
 function getGrade(grades?: ClimbGrades | null): string {
   if (!grades) return '–';
-  return grades.yds || grades.vscale || grades.french || grades.ewbank || '–';
+  return grades.yds || grades.vscale || grades.french || grades.ewbank || grades.font || grades.uiaa || grades.wi || '–';
+}
+
+function getAllGrades(grades?: ClimbGrades | null): Array<{ label: string; value: string }> {
+  if (!grades) return [];
+  const systems = [
+    { label: 'YDS', value: grades.yds },
+    { label: 'V-Scale', value: grades.vscale },
+    { label: 'French', value: grades.french },
+    { label: 'Ewbank', value: grades.ewbank },
+    { label: 'Font', value: grades.font },
+    { label: 'UIAA', value: grades.uiaa },
+    { label: 'WI', value: grades.wi },
+    { label: 'Brazilian', value: grades.brazilianCrux },
+  ];
+  return systems.filter((s): s is { label: string; value: string } => !!s.value);
+}
+
+const MEDIA_CDN = 'https://media.openbeta.io';
+function getMediaUrl(mediaUrl: string): string {
+  return mediaUrl.startsWith('http') ? mediaUrl : `${MEDIA_CDN}/${mediaUrl}`;
 }
 
 // ─── OpenBeta API ─────────────────────────────────────────────────────────────
@@ -110,6 +159,10 @@ const AREA_CLIMBS_QUERY = `
           vscale
           french
           ewbank
+          font
+          uiaa
+          wi
+          brazilianCrux
         }
         type {
           trad
@@ -129,6 +182,37 @@ const AREA_CLIMBS_QUERY = `
           protection
         }
         pathTokens
+        media {
+          mediaUrl
+          width
+          height
+        }
+        pitches {
+          id
+          pitchNumber
+          grades {
+            yds
+            vscale
+            french
+            ewbank
+          }
+          type {
+            trad
+            sport
+            bouldering
+            alpine
+            ice
+            mixed
+          }
+          length
+          boltsCount
+          description
+        }
+        metadata {
+          lat
+          lng
+          mp_id
+        }
       }
     }
   }
@@ -290,6 +374,10 @@ function InfoField({
 function ClimbDetail({ climb, onBack }: { climb: Climb; onBack: () => void }) {
   const grade = getGrade(climb.grades);
   const types = getClimbTypes(climb.type);
+  const allGrades = getAllGrades(climb.grades);
+  const photos = (climb.media ?? []).filter((m) => m.mediaUrl);
+  const pitches = climb.pitches ?? [];
+  const mpId = climb.metadata?.mp_id;
 
   return (
     <div>
@@ -301,7 +389,30 @@ function ClimbDetail({ climb, onBack }: { climb: Climb; onBack: () => void }) {
         Back to routes
       </button>
 
+      {/* ── Photos ── */}
+      {photos.length > 0 && (
+        <div className="flex gap-2 overflow-x-auto pb-2 mb-3 -mx-1 px-1">
+          {photos.map((photo, i) => (
+            <a
+              key={i}
+              href={getMediaUrl(photo.mediaUrl)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-none"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={getMediaUrl(photo.mediaUrl)}
+                alt={`${climb.name} photo ${i + 1}`}
+                className="h-36 w-auto rounded-lg object-cover border border-stone-200"
+              />
+            </a>
+          ))}
+        </div>
+      )}
+
       <div className="bg-white rounded-lg border border-stone-200 p-4 space-y-4">
+        {/* ── Name & breadcrumb ── */}
         <div>
           <h2 className="text-base font-semibold text-stone-800 leading-snug">{climb.name}</h2>
           {climb.pathTokens && climb.pathTokens.length > 0 && (
@@ -309,13 +420,14 @@ function ClimbDetail({ climb, onBack }: { climb: Climb; onBack: () => void }) {
           )}
         </div>
 
+        {/* ── Key stats ── */}
         <dl className="grid grid-cols-2 gap-x-4 gap-y-3">
           <InfoField label="Grade" value={grade} highlight />
           <InfoField label="Type" value={types} />
-          {climb.length != null && (
+          {climb.length != null && climb.length > 0 && (
             <InfoField label="Length" value={`${climb.length} m`} />
           )}
-          {climb.boltsCount != null && (
+          {climb.boltsCount != null && climb.boltsCount > 0 && (
             <InfoField label="Bolts" value={String(climb.boltsCount)} />
           )}
           {climb.fa && <InfoField label="First Ascent" value={climb.fa} />}
@@ -324,6 +436,27 @@ function ClimbDetail({ climb, onBack }: { climb: Climb; onBack: () => void }) {
           )}
         </dl>
 
+        {/* ── All grade systems (when more than one is present) ── */}
+        {allGrades.length > 1 && (
+          <div>
+            <h3 className="text-xs font-semibold text-stone-500 uppercase tracking-wide mb-2">
+              Grades
+            </h3>
+            <div className="flex flex-wrap gap-2">
+              {allGrades.map(({ label, value }) => (
+                <span
+                  key={label}
+                  className="text-xs bg-stone-100 border border-stone-200 rounded px-2 py-1"
+                >
+                  <span className="text-stone-400">{label} </span>
+                  <span className="font-medium text-stone-700">{value}</span>
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ── Text content ── */}
         {climb.content?.description && (
           <div>
             <h3 className="text-xs font-semibold text-stone-500 uppercase tracking-wide mb-1.5">
@@ -349,6 +482,62 @@ function ClimbDetail({ climb, onBack }: { climb: Climb; onBack: () => void }) {
             </h3>
             <p className="text-sm text-stone-700 leading-relaxed">{climb.content.protection}</p>
           </div>
+        )}
+
+        {/* ── Pitches (multi-pitch routes) ── */}
+        {pitches.length > 1 && (
+          <div>
+            <h3 className="text-xs font-semibold text-stone-500 uppercase tracking-wide mb-2">
+              Pitches
+            </h3>
+            <div className="space-y-2">
+              {pitches.map((pitch) => (
+                <div
+                  key={pitch.id}
+                  className="flex items-start gap-3 p-2 rounded-lg bg-stone-50 border border-stone-200"
+                >
+                  <span className="text-xs font-bold text-stone-400 w-5 text-center flex-none mt-0.5">
+                    {pitch.pitchNumber}
+                  </span>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      {pitch.grades && (
+                        <span className="text-xs font-mono font-medium text-sage-600">
+                          {getGrade(pitch.grades)}
+                        </span>
+                      )}
+                      {pitch.type && (
+                        <span className="text-xs text-stone-400">{getClimbTypes(pitch.type)}</span>
+                      )}
+                      {pitch.length != null && pitch.length > 0 && (
+                        <span className="text-xs text-stone-400">{pitch.length} m</span>
+                      )}
+                      {pitch.boltsCount != null && pitch.boltsCount > 0 && (
+                        <span className="text-xs text-stone-400">{pitch.boltsCount} bolts</span>
+                      )}
+                    </div>
+                    {pitch.description && (
+                      <p className="text-xs text-stone-600 mt-0.5 leading-relaxed">
+                        {pitch.description}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ── Mountain Project link ── */}
+        {mpId && (
+          <a
+            href={`https://www.mountainproject.com/route/${mpId}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 text-xs text-sage-600 hover:text-sage-700 font-medium"
+          >
+            View on Mountain Project ↗
+          </a>
         )}
       </div>
     </div>
