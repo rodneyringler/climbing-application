@@ -80,17 +80,15 @@ function getGrade(grades?: ClimbGrades | null): string {
 
 // ─── OpenBeta API ─────────────────────────────────────────────────────────────
 
-const CRAGS_NEAR_QUERY = `
-  query CragsNear($lnglat: Point, $maxDistance: Int) {
-    cragsNear(lnglat: $lnglat, maxDistance: $maxDistance, includeCrags: true) {
-      crags {
-        uuid
-        area_name
-        totalClimbs
-        metadata {
-          lat
-          lng
-        }
+const CRAGS_WITHIN_QUERY = `
+  query CragsWithin($filter: SearchWithinFilter) {
+    cragsWithin(filter: $filter) {
+      uuid
+      area_name
+      totalClimbs
+      metadata {
+        lat
+        lng
       }
     }
   }
@@ -136,16 +134,13 @@ const AREA_CLIMBS_QUERY = `
   }
 `;
 
-async function fetchCragsNear(lat: number, lng: number): Promise<Crag[]> {
+async function fetchCragsWithin(bbox: [number, number, number, number], zoom: number): Promise<Crag[]> {
   const res = await fetch('https://api.openbeta.io', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      query: CRAGS_NEAR_QUERY,
-      variables: {
-        lnglat: { lat, lng },
-        maxDistance: 40000,
-      },
+      query: CRAGS_WITHIN_QUERY,
+      variables: { filter: { bbox, zoom } },
     }),
   });
 
@@ -153,11 +148,7 @@ async function fetchCragsNear(lat: number, lng: number): Promise<Crag[]> {
   const data = await res.json();
   if (data.errors) throw new Error(data.errors[0]?.message ?? 'Unknown API error');
 
-  const cragsNear: Array<{ crags?: Crag[] }> = data.data?.cragsNear ?? [];
-  const crags: Crag[] = [];
-  for (const result of cragsNear) {
-    if (result.crags) crags.push(...result.crags);
-  }
+  const crags: Crag[] = data.data?.cragsWithin ?? [];
   return crags.filter((c) => c.metadata?.lat != null && c.metadata?.lng != null);
 }
 
@@ -458,13 +449,18 @@ export default function RouteMap() {
       zIndex: 100,
     });
 
-    // Re-fetch crags whenever the map settles (initial load + every pan/zoom)
+    // Re-fetch crags using the visible bounds whenever the map settles
     map.addListener('idle', () => {
-      const center = map.getCenter();
-      if (!center) return;
+      const bounds = map.getBounds();
+      const zoom = map.getZoom();
+      if (!bounds || zoom == null) return;
+      const sw = bounds.getSouthWest();
+      const ne = bounds.getNorthEast();
+      // bbox format: [minLng, minLat, maxLng, maxLat]
+      const bbox: [number, number, number, number] = [sw.lng(), sw.lat(), ne.lng(), ne.lat()];
       setLoadingCrags(true);
       setApiError(null);
-      fetchCragsNear(center.lat(), center.lng())
+      fetchCragsWithin(bbox, zoom)
         .then(setCrags)
         .catch((err) => setApiError(`Failed to load climbing areas: ${err.message}`))
         .finally(() => setLoadingCrags(false));
