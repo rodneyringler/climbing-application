@@ -532,14 +532,9 @@ export default function RouteMap() {
   }
 
   return (
-    <div className="flex h-full gap-4">
-      {/* ── Left panel ── */}
-      <div className="w-72 flex-none bg-stone-100 rounded-xl border border-stone-200 overflow-y-auto p-4">
-        {panelContent}
-      </div>
-
-      {/* ── Map ── */}
-      <div className="flex-1 rounded-xl overflow-hidden border border-stone-200 relative">
+    <div className="flex flex-col md:flex-row md:h-full gap-3 md:gap-4">
+      {/* ── Map — top on mobile, right on desktop ── */}
+      <div className="order-1 md:order-2 h-64 md:h-auto md:flex-1 rounded-xl overflow-hidden border border-stone-200 relative">
         <Script
           src={`https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`}
           strategy="afterInteractive"
@@ -551,6 +546,11 @@ export default function RouteMap() {
           </div>
         )}
         <div ref={mapRef} className="w-full h-full" />
+      </div>
+
+      {/* ── Panel — bottom on mobile, left on desktop ── */}
+      <div className="order-2 md:order-1 md:w-72 md:flex-none bg-stone-100 rounded-xl border border-stone-200 md:overflow-y-auto p-4">
+        {panelContent}
       </div>
     </div>
   );
