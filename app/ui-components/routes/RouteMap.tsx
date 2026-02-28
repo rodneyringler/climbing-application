@@ -432,6 +432,9 @@ export default function RouteMap() {
       styles: [
         { featureType: 'poi', elementType: 'labels', stylers: [{ visibility: 'off' }] },
       ],
+      zoomControl: true,
+      scrollwheel: true,
+      gestureHandling: 'greedy',
       mapTypeControl: true,
       streetViewControl: false,
       fullscreenControl: false,
