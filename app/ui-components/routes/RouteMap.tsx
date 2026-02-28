@@ -379,6 +379,9 @@ function ClimbDetail({ climb, onBack }: { climb: Climb; onBack: () => void }) {
   const pitches = climb.pitches ?? [];
   const mpId = climb.metadata?.mp_id;
 
+  // Temporary debug — remove once confirmed working
+  console.log('[ClimbDetail]', climb.name, { length: climb.length, boltsCount: climb.boltsCount, photos: photos.length, pitches: pitches.length, mpId });
+
   return (
     <div>
       <button
@@ -424,10 +427,10 @@ function ClimbDetail({ climb, onBack }: { climb: Climb; onBack: () => void }) {
         <dl className="grid grid-cols-2 gap-x-4 gap-y-3">
           <InfoField label="Grade" value={grade} highlight />
           <InfoField label="Type" value={types} />
-          {climb.length != null && climb.length > 0 && (
+          {climb.length != null && climb.length !== -1 && (
             <InfoField label="Length" value={`${climb.length} m`} />
           )}
-          {climb.boltsCount != null && climb.boltsCount > 0 && (
+          {climb.boltsCount != null && climb.boltsCount !== -1 && (
             <InfoField label="Bolts" value={String(climb.boltsCount)} />
           )}
           {climb.fa && <InfoField label="First Ascent" value={climb.fa} />}
@@ -485,7 +488,7 @@ function ClimbDetail({ climb, onBack }: { climb: Climb; onBack: () => void }) {
         )}
 
         {/* ── Pitches (multi-pitch routes) ── */}
-        {pitches.length > 1 && (
+        {pitches.length > 0 && (
           <div>
             <h3 className="text-xs font-semibold text-stone-500 uppercase tracking-wide mb-2">
               Pitches
