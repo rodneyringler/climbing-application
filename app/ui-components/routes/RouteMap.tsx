@@ -245,6 +245,7 @@ async function fetchAreaClimbs(uuid: string): Promise<Climb[]> {
 
   if (!res.ok) throw new Error(`OpenBeta API error: ${res.status}`);
   const data = await res.json();
+  console.log('[fetchAreaClimbs] raw response:', data);
   if (data.errors) throw new Error(data.errors[0]?.message ?? 'Unknown API error');
   return data.data?.area?.climbs ?? [];
 }
@@ -380,6 +381,15 @@ function ClimbDetail({ climb, onBack }: { climb: Climb; onBack: () => void }) {
   const photos = (climb.media ?? []).filter((m) => m.mediaUrl);
   const pitches = climb.pitches ?? [];
   const mpId = climb.metadata?.mp_id;
+
+  console.log('[ClimbDetail]', climb.name, {
+    length: climb.length,
+    boltsCount: climb.boltsCount,
+    photos: photos.length,
+    pitches: pitches.length,
+    mpId,
+    rawClimb: climb,
+  });
 
   return (
     <div>
