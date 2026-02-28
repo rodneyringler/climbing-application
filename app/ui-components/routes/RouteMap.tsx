@@ -143,7 +143,7 @@ async function fetchCragsNear(lat: number, lng: number): Promise<Crag[]> {
     body: JSON.stringify({
       query: CRAGS_NEAR_QUERY,
       variables: {
-        lnglat: { type: 'Point', coordinates: [lng, lat] },
+        lnglat: { lat, lng },
         maxDistance: 40000,
       },
     }),
