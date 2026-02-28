@@ -6,6 +6,7 @@ import {
   DocumentDuplicateIcon,
   ClipboardDocumentListIcon,
   Cog6ToothIcon,
+  MapPinIcon,
 } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -19,6 +20,7 @@ const links = [
   { name: 'Exercises', href: '/ui/dashboard/exercises', icon: DocumentDuplicateIcon},
   { name: 'Programs', href: '/ui/dashboard/programs', icon: UserGroupIcon },
   { name: 'Workouts', href: '/ui/dashboard/workouts', icon: ClipboardDocumentListIcon },
+  { name: 'Routes', href: '/ui/dashboard/routes', icon: MapPinIcon },
   { name: 'Settings', href: '/ui/dashboard/settings', icon: Cog6ToothIcon },
 ];
 
