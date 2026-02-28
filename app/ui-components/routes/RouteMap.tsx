@@ -458,13 +458,17 @@ export default function RouteMap() {
       zIndex: 100,
     });
 
-    // Fetch nearby crags
-    setLoadingCrags(true);
-    setApiError(null);
-    fetchCragsNear(userLocation.lat, userLocation.lng)
-      .then(setCrags)
-      .catch((err) => setApiError(`Failed to load climbing areas: ${err.message}`))
-      .finally(() => setLoadingCrags(false));
+    // Re-fetch crags whenever the map settles (initial load + every pan/zoom)
+    map.addListener('idle', () => {
+      const center = map.getCenter();
+      if (!center) return;
+      setLoadingCrags(true);
+      setApiError(null);
+      fetchCragsNear(center.lat(), center.lng())
+        .then(setCrags)
+        .catch((err) => setApiError(`Failed to load climbing areas: ${err.message}`))
+        .finally(() => setLoadingCrags(false));
+    });
   }, [mapsLoaded, userLocation]);
 
   // ── Add / refresh crag markers ──
