@@ -245,9 +245,12 @@ async function fetchAreaClimbs(uuid: string): Promise<Climb[]> {
 
   if (!res.ok) throw new Error(`OpenBeta API error: ${res.status}`);
   const data = await res.json();
-  console.log('[fetchAreaClimbs] raw response:', data);
-  if (data.errors) throw new Error(data.errors[0]?.message ?? 'Unknown API error');
-  return data.data?.area?.climbs ?? [];
+  if (data.errors) {
+    console.warn('[fetchAreaClimbs] GraphQL errors (partial data may still be returned):', data.errors);
+  }
+  const climbs = data.data?.area?.climbs ?? [];
+  console.log('[fetchAreaClimbs] first climb raw:', JSON.stringify(climbs[0], null, 2));
+  return climbs;
 }
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -416,18 +419,18 @@ function ClimbDetail({ climb, onBack }: { climb: Climb; onBack: () => void }) {
           <InfoField label="Type" value={types} />
           <InfoField
             label="Length"
-            value={climb.length != null && climb.length !== -1 ? `${climb.length} m` : 'No data'}
+            value={climb.length != null && climb.length !== -1 ? `${climb.length} m` : 'Unknown'}
             muted={climb.length == null || climb.length === -1}
           />
           <InfoField
             label="Bolts"
-            value={climb.boltsCount != null && climb.boltsCount !== -1 ? String(climb.boltsCount) : 'No data'}
+            value={climb.boltsCount != null && climb.boltsCount !== -1 ? String(climb.boltsCount) : 'Unknown'}
             muted={climb.boltsCount == null || climb.boltsCount === -1}
           />
-          <InfoField label="First Ascent" value={climb.fa || 'No data'} muted={!climb.fa} />
+          <InfoField label="First Ascent" value={climb.fa || 'Unknown'} muted={!climb.fa} />
           <InfoField
             label="Safety"
-            value={climb.safety && climb.safety !== 'UNSPECIFIED' ? climb.safety : 'No data'}
+            value={climb.safety && climb.safety !== 'UNSPECIFIED' ? climb.safety : 'Unknown'}
             muted={!climb.safety || climb.safety === 'UNSPECIFIED'}
           />
         </dl>
@@ -459,7 +462,7 @@ function ClimbDetail({ climb, onBack }: { climb: Climb; onBack: () => void }) {
           </h3>
           {climb.content?.description
             ? <p className="text-sm text-stone-700 leading-relaxed">{climb.content.description}</p>
-            : <p className="text-sm text-stone-400 italic">No data</p>
+            : <p className="text-sm text-stone-400 italic">Not available in OpenBeta</p>
           }
         </div>
 
@@ -469,7 +472,7 @@ function ClimbDetail({ climb, onBack }: { climb: Climb; onBack: () => void }) {
           </h3>
           {climb.content?.location
             ? <p className="text-sm text-stone-700 leading-relaxed">{climb.content.location}</p>
-            : <p className="text-sm text-stone-400 italic">No data</p>
+            : <p className="text-sm text-stone-400 italic">Not available in OpenBeta</p>
           }
         </div>
 
@@ -479,7 +482,7 @@ function ClimbDetail({ climb, onBack }: { climb: Climb; onBack: () => void }) {
           </h3>
           {climb.content?.protection
             ? <p className="text-sm text-stone-700 leading-relaxed">{climb.content.protection}</p>
-            : <p className="text-sm text-stone-400 italic">No data</p>
+            : <p className="text-sm text-stone-400 italic">Not available in OpenBeta</p>
           }
         </div>
 
@@ -525,7 +528,7 @@ function ClimbDetail({ climb, onBack }: { climb: Climb; onBack: () => void }) {
               ))}
             </div>
           ) : (
-            <p className="text-sm text-stone-400 italic">No data</p>
+            <p className="text-sm text-stone-400 italic">Not available in OpenBeta</p>
           )}
         </div>
 
@@ -554,7 +557,7 @@ function ClimbDetail({ climb, onBack }: { climb: Climb; onBack: () => void }) {
               ))}
             </div>
           ) : (
-            <p className="text-sm text-stone-400 italic">No data</p>
+            <p className="text-sm text-stone-400 italic">Not available in OpenBeta</p>
           )}
         </div>
 
@@ -564,9 +567,9 @@ function ClimbDetail({ climb, onBack }: { climb: Climb; onBack: () => void }) {
             href={`https://www.mountainproject.com/route/${mpId}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1.5 text-xs text-sage-600 hover:text-sage-700 font-medium"
+            className="flex items-center justify-center gap-2 w-full py-2 px-3 rounded-lg bg-sage-500 hover:bg-sage-600 text-white text-sm font-medium transition-colors"
           >
-            View on Mountain Project ↗
+            View Full Details on Mountain Project ↗
           </a>
         )}
       </div>
