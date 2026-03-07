@@ -7,6 +7,8 @@ export interface MPRouteData {
   description: string | null;
   protection: string | null;
   location: string | null;
+  gps: string | null;
+  fa: string | null;
   photos: string[];
   url: string;
 }
@@ -96,6 +98,19 @@ function parseRouteData(html: string, mpId: string): MPRouteData {
   const protection = getTextAfterH2($, 'Protection');
   const location = getTextAfterH2($, 'Location');
 
+  // ── GPS & FA ───────────────────────────────────────────────────────────────
+  let gps: string | null = null;
+  let fa: string | null = null;
+
+  $('td').each((_, el) => {
+    const label = $(el).text().trim();
+    if (label === 'GPS:') {
+      gps = $(el).next('td').text().trim() || null;
+    } else if (label === 'FA:') {
+      fa = $(el).next('td').text().trim() || null;
+    }
+  });
+
   // ── Photos ─────────────────────────────────────────────────────────────────
   const photos: string[] = [];
 
@@ -123,6 +138,8 @@ function parseRouteData(html: string, mpId: string): MPRouteData {
     description,
     protection,
     location,
+    gps,
+    fa,
     photos,
     url: `https://www.mountainproject.com/route/${mpId}`,
   };

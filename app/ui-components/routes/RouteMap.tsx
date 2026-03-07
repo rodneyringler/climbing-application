@@ -447,6 +447,24 @@ function MPSection({ mpId }: { mpId: string }) {
             <StarRating stars={mpData.stars} votes={mpData.votes} />
           )}
 
+          {/* GPS & FA */}
+          {(mpData.gps || mpData.fa) && (
+            <dl className="grid grid-cols-2 gap-x-4 gap-y-2">
+              {mpData.gps && (
+                <div className="col-span-2">
+                  <dt className="text-xs text-stone-400 mb-0.5">GPS</dt>
+                  <dd className="text-sm font-medium text-stone-700">{mpData.gps}</dd>
+                </div>
+              )}
+              {mpData.fa && (
+                <div className="col-span-2">
+                  <dt className="text-xs text-stone-400 mb-0.5">First Ascent</dt>
+                  <dd className="text-sm font-medium text-stone-700">{mpData.fa}</dd>
+                </div>
+              )}
+            </dl>
+          )}
+
           {/* Description */}
           {mpData.description && (
             <div>
