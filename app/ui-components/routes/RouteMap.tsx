@@ -46,6 +46,9 @@ interface MPRouteData {
   protection: string | null;
   location: string | null;
   url: string;
+  gps: string | null;
+  fa: string | null;
+  photos: string[];
 }
 
 interface ClimbType {
