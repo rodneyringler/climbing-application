@@ -419,7 +419,7 @@ function MPSection({ mpId }: { mpId: string }) {
         if (data.error) throw new Error(data.error);
         setMpData(data as MPRouteData);
       })
-      .catch((err: Error) => setMpError(err.message))
+      .catch((err: Error) => { console.error('[MPSection] fetch error:', err); setMpError(err.message); })
       .finally(() => setLoadingMp(false));
   }, [mpId]);
 
@@ -437,7 +437,7 @@ function MPSection({ mpId }: { mpId: string }) {
       )}
 
       {mpError && (
-        <p className="text-xs text-red-500 italic">Could not load Mountain Project data.</p>
+        <p className="text-xs text-red-500 italic">{mpError}</p>
       )}
 
       {mpData && (

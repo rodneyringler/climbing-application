@@ -19,7 +19,9 @@ export async function GET(req: NextRequest) {
   const url = `https://www.mountainproject.com/route/${mpId}`;
 
   try {
+    console.log('[MP scraper] fetching', url);
     const res = await fetch(url, {
+      redirect: 'follow',
       headers: {
         'User-Agent':
           'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
@@ -28,14 +30,21 @@ export async function GET(req: NextRequest) {
       },
     });
 
+    console.log('[MP scraper] response status', res.status, res.url);
+
     if (!res.ok) {
-      return NextResponse.json({ error: `Mountain Project returned ${res.status}` }, { status: 502 });
+      const msg = `Mountain Project returned ${res.status}`;
+      console.error('[MP scraper]', msg);
+      return NextResponse.json({ error: msg }, { status: 502 });
     }
 
     const html = await res.text();
+    console.log('[MP scraper] html length', html.length);
     const data = parseRouteData(html, mpId);
+    console.log('[MP scraper] parsed', { stars: data.stars, votes: data.votes, hasDesc: !!data.description });
     return NextResponse.json(data);
   } catch (err) {
+    console.error('[MP scraper] exception', err);
     return NextResponse.json({ error: String(err) }, { status: 500 });
   }
 }
