@@ -471,6 +471,31 @@ function MPSection({ mpId }: { mpId: string }) {
             </div>
           )}
 
+          {/* Photos */}
+          {mpData.photos.length > 0 && (
+            <div>
+              <h4 className="text-xs font-medium text-stone-400 mb-1">Photos</h4>
+              <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
+                {mpData.photos.map((url, i) => (
+                  <a
+                    key={i}
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-none"
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={url}
+                      alt={`Mountain Project photo ${i + 1}`}
+                      className="h-32 w-auto rounded-lg object-cover border border-stone-200"
+                    />
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+
           <a
             href={mpData.url}
             target="_blank"

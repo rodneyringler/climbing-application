@@ -7,6 +7,7 @@ export interface MPRouteData {
   description: string | null;
   protection: string | null;
   location: string | null;
+  photos: string[];
   url: string;
 }
 
@@ -95,12 +96,34 @@ function parseRouteData(html: string, mpId: string): MPRouteData {
   const protection = getTextAfterH2($, 'Protection');
   const location = getTextAfterH2($, 'Location');
 
+  // ── Photos ─────────────────────────────────────────────────────────────────
+  const photos: string[] = [];
+
+  // og:image is the first carousel slide's photo
+  const ogImage = $('meta[property="og:image"]').attr('content');
+  if (ogImage) photos.push(ogImage);
+
+  // Remaining carousel items use style="background-image: url(...)" or data-src
+  $('#photo-carousel .carousel-item').each((_, el) => {
+    const style = $(el).attr('style') ?? '';
+    const bgMatch = style.match(/background-image:\s*url\(['"]?([^'")\s]+)['"]?\)/);
+    if (bgMatch) {
+      photos.push(bgMatch[1]);
+      return;
+    }
+    const dataSrc = $(el).attr('data-src');
+    if (dataSrc) photos.push(dataSrc);
+  });
+
+  console.log('[MP scraper] photos found', photos.length);
+
   return {
     stars,
     votes,
     description,
     protection,
     location,
+    photos,
     url: `https://www.mountainproject.com/route/${mpId}`,
   };
 }
