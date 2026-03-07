@@ -413,7 +413,7 @@ function MPSection({ mpId }: { mpId: string }) {
     setMpData(null);
     setMpError(null);
     setLoadingMp(true);
-    fetch(`/ui/query/mountain-project?mpId=${encodeURIComponent(mpId)}`)
+    fetch(`/api/mountain-project?mpId=${encodeURIComponent(mpId)}`)
       .then((res) => res.json())
       .then((data) => {
         if (data.error) throw new Error(data.error);
