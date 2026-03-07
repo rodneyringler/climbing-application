@@ -39,6 +39,15 @@ interface ClimbMetadata {
   mp_id?: string | null;
 }
 
+interface MPRouteData {
+  stars: number | null;
+  votes: number | null;
+  description: string | null;
+  protection: string | null;
+  location: string | null;
+  url: string;
+}
+
 interface ClimbType {
   trad?: boolean | null;
   sport?: boolean | null;
@@ -377,6 +386,105 @@ function InfoField({
   );
 }
 
+function StarRating({ stars, votes }: { stars: number; votes: number | null }) {
+  const filled = Math.round(stars);
+  return (
+    <div className="flex items-center gap-2">
+      <div className="flex gap-0.5">
+        {[1, 2, 3, 4].map((n) => (
+          <span key={n} className={`text-base leading-none ${n <= filled ? 'text-amber-400' : 'text-stone-200'}`}>
+            ★
+          </span>
+        ))}
+      </div>
+      <span className="text-xs text-stone-500">
+        {stars.toFixed(1)}/4{votes != null ? ` · ${votes.toLocaleString()} votes` : ''}
+      </span>
+    </div>
+  );
+}
+
+function MPSection({ mpId }: { mpId: string }) {
+  const [mpData, setMpData] = useState<MPRouteData | null>(null);
+  const [loadingMp, setLoadingMp] = useState(true);
+  const [mpError, setMpError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setMpData(null);
+    setMpError(null);
+    setLoadingMp(true);
+    fetch(`/app/ui/query/mountain-project?mpId=${encodeURIComponent(mpId)}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.error) throw new Error(data.error);
+        setMpData(data as MPRouteData);
+      })
+      .catch((err: Error) => setMpError(err.message))
+      .finally(() => setLoadingMp(false));
+  }, [mpId]);
+
+  return (
+    <div className="border-t border-stone-100 pt-4 space-y-3">
+      <h3 className="text-xs font-semibold text-stone-500 uppercase tracking-wide">
+        Mountain Project
+      </h3>
+
+      {loadingMp && (
+        <div className="flex items-center gap-2 text-stone-400 text-xs">
+          <div className="w-3 h-3 border border-stone-300 border-t-sage-500 rounded-full animate-spin flex-none" />
+          Loading Mountain Project data…
+        </div>
+      )}
+
+      {mpError && (
+        <p className="text-xs text-red-500 italic">Could not load Mountain Project data.</p>
+      )}
+
+      {mpData && (
+        <div className="space-y-3">
+          {/* Stars */}
+          {mpData.stars != null && (
+            <StarRating stars={mpData.stars} votes={mpData.votes} />
+          )}
+
+          {/* Description */}
+          {mpData.description && (
+            <div>
+              <h4 className="text-xs font-medium text-stone-400 mb-1">Description</h4>
+              <p className="text-sm text-stone-700 leading-relaxed">{mpData.description}</p>
+            </div>
+          )}
+
+          {/* Getting There / Location */}
+          {mpData.location && (
+            <div>
+              <h4 className="text-xs font-medium text-stone-400 mb-1">Getting There</h4>
+              <p className="text-sm text-stone-700 leading-relaxed">{mpData.location}</p>
+            </div>
+          )}
+
+          {/* Protection */}
+          {mpData.protection && (
+            <div>
+              <h4 className="text-xs font-medium text-stone-400 mb-1">Protection</h4>
+              <p className="text-sm text-stone-700 leading-relaxed">{mpData.protection}</p>
+            </div>
+          )}
+
+          <a
+            href={mpData.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block text-xs text-sage-500 hover:text-sage-600 underline underline-offset-2"
+          >
+            View on Mountain Project ↗
+          </a>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function ClimbDetail({ climb, onBack }: { climb: Climb; onBack: () => void }) {
   const grade = getGrade(climb.grades);
   const types = getClimbTypes(climb.type);
@@ -384,15 +492,6 @@ function ClimbDetail({ climb, onBack }: { climb: Climb; onBack: () => void }) {
   const photos = (climb.media ?? []).filter((m) => m.mediaUrl);
   const pitches = climb.pitches ?? [];
   const mpId = climb.metadata?.mp_id;
-
-  console.log('[ClimbDetail]', climb.name, {
-    length: climb.length,
-    boltsCount: climb.boltsCount,
-    photos: photos.length,
-    pitches: pitches.length,
-    mpId,
-    rawClimb: climb,
-  });
 
   return (
     <div>
@@ -455,7 +554,7 @@ function ClimbDetail({ climb, onBack }: { climb: Climb; onBack: () => void }) {
           </div>
         )}
 
-        {/* ── Text content ── */}
+        {/* ── OpenBeta text content ── */}
         <div>
           <h3 className="text-xs font-semibold text-stone-500 uppercase tracking-wide mb-1.5">
             Description
@@ -561,17 +660,8 @@ function ClimbDetail({ climb, onBack }: { climb: Climb; onBack: () => void }) {
           )}
         </div>
 
-        {/* ── Mountain Project link ── */}
-        {mpId && (
-          <a
-            href={`https://www.mountainproject.com/route/${mpId}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2 w-full py-2 px-3 rounded-lg bg-sage-500 hover:bg-sage-600 text-white text-sm font-medium transition-colors"
-          >
-            View Full Details on Mountain Project ↗
-          </a>
-        )}
+        {/* ── Mountain Project data (replaces the old link button) ── */}
+        {mpId && <MPSection mpId={mpId} />}
       </div>
     </div>
   );
