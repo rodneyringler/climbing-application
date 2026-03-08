@@ -17,6 +17,8 @@ export default function CategoriesTable({
     setExpandedId(expandedId === id ? null : id);
   };
 
+  console.log('categories data:', categories?.map(c => ({ id: c.id, name: c.name, imageUrl: c.imageUrl, programCount: c.programs?.length })));
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
       {categories?.map((category) => (
@@ -29,10 +31,11 @@ export default function CategoriesTable({
             className="relative h-48 w-full cursor-pointer overflow-hidden"
             onClick={() => toggleCategory(category.id)}
           >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={failedImages.has(category.id) ? '/hero_img.jpeg' : `/${category.imageUrl}`}
               alt={category.name}
-              className="w-full h-full object-cover"
+              style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
               onError={() => setFailedImages(prev => new Set([...prev, category.id]))}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
