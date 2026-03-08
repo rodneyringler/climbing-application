@@ -9,7 +9,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       </div>
       <div className="flex-grow p-6 md:overflow-y-auto md:p-12 relative">
         {/* Subtle bouldering background */}
-        <div className="absolute inset-0 z-0 opacity-40">
+        <div className="fixed inset-0 z-0 opacity-40 pointer-events-none">
           <Image
             src="/hero_img3.png"
             fill
