@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import { lusitana } from '@/app/ui-components/fonts';
-import Image from 'next/image';
 import { CategoryItem } from '@/app/lib/definitions';
 import { ChevronDownIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 
@@ -26,16 +25,14 @@ export default function CategoriesTable({
         >
           {/* Category Image — clicking header also toggles programs */}
           <div
-            className="relative h-48 w-full cursor-pointer"
+            className="relative h-48 w-full cursor-pointer overflow-hidden"
             onClick={() => toggleCategory(category.id)}
           >
-            <Image
+            <img
               src={`/${category.imageUrl}`}
               alt={category.name}
-              fill
-              unoptimized
-              className="object-cover"
-              sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+              className="w-full h-full object-cover"
+              onError={(e) => { e.currentTarget.src = '/hero_img.jpeg'; }}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
             <h3
