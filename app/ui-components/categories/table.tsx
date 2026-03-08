@@ -11,6 +11,7 @@ export default function CategoriesTable({
   categories: CategoryItem[];
 }) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
 
   const toggleCategory = (id: string) => {
     setExpandedId(expandedId === id ? null : id);
@@ -29,10 +30,10 @@ export default function CategoriesTable({
             onClick={() => toggleCategory(category.id)}
           >
             <img
-              src={`/${category.imageUrl}`}
+              src={failedImages.has(category.id) ? '/hero_img.jpeg' : `/${category.imageUrl}`}
               alt={category.name}
               className="w-full h-full object-cover"
-              onError={(e) => { e.currentTarget.src = '/hero_img.jpeg'; }}
+              onError={() => setFailedImages(prev => new Set([...prev, category.id]))}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
             <h3
