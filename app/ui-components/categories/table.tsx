@@ -17,7 +17,6 @@ export default function CategoriesTable({
     setExpandedId(expandedId === id ? null : id);
   };
 
-  categories?.forEach(c => console.log(`name: ${c.name} | imageUrl: ${c.imageUrl} | programs: ${c.programs?.length}`));
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
