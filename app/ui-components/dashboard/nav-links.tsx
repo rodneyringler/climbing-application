@@ -12,7 +12,7 @@ import { usePathname } from 'next/navigation';
 import clsx from 'clsx';
 
 const links = [
-  { name: 'Routes', href: '/ui/dashboard', icon: MapPinIcon },
+  { name: 'Dashboard', href: '/ui/dashboard', icon: MapPinIcon },
   { name: 'Categories', href: '/ui/dashboard/categories', icon: DocumentDuplicateIcon },
   { name: 'Exercises', href: '/ui/dashboard/exercises', icon: DocumentDuplicateIcon },
   { name: 'Programs', href: '/ui/dashboard/programs', icon: UserGroupIcon },

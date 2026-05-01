@@ -58,13 +58,20 @@ function BigDisplay({ children }: { children: React.ReactNode }) {
 export default function WorkoutExecutor({ mode, exercise, program }: Props) {
   const router = useRouter();
 
-  // Normalise to a flat list of exercises regardless of mode
-  const exercises: ExecutorExercise[] = mode === 'program'
-    ? program.exercises
-    : [exercise];
+  // Normalise to a flat list of exercises, explicitly coercing numeric fields
+  // so raw SQL values (which may arrive as strings) don't break comparisons.
+  const exercises: ExecutorExercise[] = (mode === 'program' ? program.exercises : [exercise])
+    .map((ex) => ({
+      ...ex,
+      sets:     Math.max(1, Number(ex.sets)     || 1),
+      reps:     Math.max(0, Number(ex.reps)     || 0),
+      restTime: Math.max(0, Number(ex.restTime) || 0),
+      workTime: Math.max(0, Number(ex.workTime) || 0),
+    }));
 
   const totalSets = exercises.reduce((s, e) => s + e.sets, 0);
 
+  // Hooks must always be called — guard rendered conditionally in JSX below.
   const [exerciseIdx, setExerciseIdx] = useState(0);
   const [setIdx, setSetIdx] = useState(0);          // 0-based
   const [phase, setPhase] = useState<Phase>('ready');
@@ -85,6 +92,7 @@ export default function WorkoutExecutor({ mode, exercise, program }: Props) {
 
   // ── Timer ────────────────────────────────────────────────────────────────
   useEffect(() => {
+    if (!current) return;
     if (phase !== 'exercising' && phase !== 'resting') return;
     if (!current.isTimed && phase === 'exercising') return; // reps-based, no tick
     if (isPaused) return;
@@ -199,6 +207,24 @@ export default function WorkoutExecutor({ mode, exercise, program }: Props) {
   }
 
   // ── Render ───────────────────────────────────────────────────────────────
+
+  // Guard here (after all hooks) so Rules of Hooks is never violated
+  if (exercises.length === 0) {
+    return (
+      <div className="max-w-md mx-auto flex flex-col items-center gap-6 pt-12 text-center">
+        <p className="text-stone-500 text-sm">
+          This program has no exercises yet. Add some exercises to it before running it.
+        </p>
+        <button
+          onClick={() => router.back()}
+          className="flex items-center gap-2 text-sage-600 hover:text-sage-700 text-sm font-medium"
+        >
+          <ArrowLeftIcon className="w-4 h-4" />
+          Go back
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-md mx-auto flex flex-col gap-6">

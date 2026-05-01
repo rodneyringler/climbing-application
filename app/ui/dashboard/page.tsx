@@ -18,9 +18,9 @@ export default function DashboardPage() {
        */}
       <Link
         href="/ui/dashboard/get-started"
-        className="fixed bottom-8 right-8 z-[5000] flex items-center gap-2 bg-sage-500 hover:bg-sage-600 text-white font-semibold px-5 py-3 rounded-full shadow-lg transition-colors"
+        className="fixed top-0 left-1/2 -translate-x-1/2 z-[5000] flex items-center justify-center gap-2 bg-white/95 backdrop-blur-sm hover:bg-white text-stone-800 font-semibold text-sm w-36 hover:w-screen py-3 rounded-b-2xl hover:rounded-none shadow-md hover:shadow-lg border-b border-stone-200/60 transition-all duration-300 ease-in-out"
       >
-        <PlayIcon className="w-4 h-4" />
+        <PlayIcon className="w-3.5 h-3.5 text-sage-500" />
         Get Started
       </Link>
     </div>

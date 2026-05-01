@@ -74,7 +74,6 @@ export default async function GetStartedPage() {
       LEFT JOIN programexercises pe ON p.id = pe.program
       LEFT JOIN programcategory  pc ON p.id = pc.program
       LEFT JOIN categories       c  ON pc.category = c.id
-      WHERE p."user" = ${userId}
       GROUP BY p.id, p.name, p.description
       ORDER BY p.name ASC
     `,
