@@ -733,6 +733,25 @@ export default function RouteMap() {
   const [locationError, setLocationError] = useState<string | null>(null);
   const [apiError, setApiError] = useState<string | null>(null);
 
+  // If Maps JS is already on the page (browser cache, fast load, or client navigation),
+  // Next.js Script's onLoad may not run — without this, mapsLoaded stays false and the map never mounts.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const mapsReady = () =>
+      !!(window as unknown as { google?: { maps?: unknown } }).google?.maps;
+    if (mapsReady()) {
+      setMapsLoaded(true);
+      return;
+    }
+    const id = window.setInterval(() => {
+      if (mapsReady()) {
+        setMapsLoaded(true);
+        window.clearInterval(id);
+      }
+    }, 50);
+    return () => window.clearInterval(id);
+  }, []);
+
   // ── Get user location ──
   useEffect(() => {
     if (!navigator.geolocation) {
