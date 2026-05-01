@@ -7,7 +7,6 @@ import { auth } from '@/auth';
 import { Workout } from './workout';
 import postgres from 'postgres';
 
-// Zod schemas for form validation
 const WorkoutFormSchema = z.object({
   id: z.string(),
   user: z.string().min(1, 'User is required'),
@@ -20,7 +19,19 @@ const WorkoutFormSchema = z.object({
 const CreateWorkout = WorkoutFormSchema.omit({ id: true, user: true });
 const UpdateWorkout = WorkoutFormSchema.omit({ id: true });
 
-// Server action functions for form handling
+// Shared core — no FormData parsing, no redirect. Both public actions call this.
+async function persistWorkout(
+  userId: string,
+  programId: string,
+  name: string,
+  startedAt: string | null,
+  endedAt: string | null,
+) {
+  await Workout.create(userId, programId, name, startedAt, endedAt);
+  revalidatePath('/ui/dashboard/workouts');
+}
+
+// Form action — used by the create workout form. Parses FormData and redirects.
 export async function createWorkout(formData: FormData) {
   const { program, name, started, ended } = CreateWorkout.parse({
     program: formData.get('program'),
@@ -29,21 +40,34 @@ export async function createWorkout(formData: FormData) {
     ended: formData.get('ended') || null,
   });
 
-  // Get the current user session
   const session = await auth();
-  if (!session?.user?.id) {
-    throw new Error('User not authenticated');
-  }
+  if (!session?.user?.id) throw new Error('User not authenticated');
 
-  await Workout.create(session.user.id, program, name, started, ended);
-
-  revalidatePath('/ui/dashboard/workouts');
+  await persistWorkout(session.user.id, program, name, started, ended);
   redirect('/ui/dashboard/workouts');
+}
+
+// Programmatic action — called from WorkoutExecutor after program completion.
+// Returns a result instead of redirecting so the client can handle UI state.
+export async function saveExecutionWorkout(
+  programId: string,
+  programName: string,
+  startedAt: string,
+  endedAt: string,
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) return { success: false, error: 'Not authenticated' };
+    await persistWorkout(session.user.id, programId, programName, startedAt, endedAt);
+    return { success: true };
+  } catch {
+    return { success: false, error: 'Failed to save workout' };
+  }
 }
 
 export async function updateWorkout(id: string, formData: FormData) {
   const { user, program, name, started, ended } = UpdateWorkout.parse({
-    user: formData.get('userId'), // Use userId instead of user
+    user: formData.get('userId'),
     program: formData.get('program'),
     name: formData.get('name'),
     started: formData.get('started') || null,
