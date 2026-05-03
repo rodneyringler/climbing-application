@@ -558,25 +558,15 @@ function ClimbDetail({ climb, onBack }: { climb: Climb; onBack: () => void }) {
           )}
         </div>
 
-        {/* ── Key stats ── */}
+        {/* ── Key stats (OpenBeta) — Grade, Type, First Ascent, Length ── */}
         <dl className="grid grid-cols-2 gap-x-4 gap-y-3">
           <InfoField label="Grade" value={grade} highlight />
           <InfoField label="Type" value={types} />
+          <InfoField label="First Ascent" value={climb.fa || 'Unknown'} muted={!climb.fa} />
           <InfoField
             label="Length"
             value={climb.length != null && climb.length !== -1 ? `${climb.length} m` : 'Unknown'}
             muted={climb.length == null || climb.length === -1}
-          />
-          <InfoField
-            label="Bolts"
-            value={climb.boltsCount != null && climb.boltsCount !== -1 ? String(climb.boltsCount) : 'Unknown'}
-            muted={climb.boltsCount == null || climb.boltsCount === -1}
-          />
-          <InfoField label="First Ascent" value={climb.fa || 'Unknown'} muted={!climb.fa} />
-          <InfoField
-            label="Safety"
-            value={climb.safety && climb.safety !== 'UNSPECIFIED' ? climb.safety : 'Unknown'}
-            muted={!climb.safety || climb.safety === 'UNSPECIFIED'}
           />
         </dl>
 
@@ -600,114 +590,127 @@ function ClimbDetail({ climb, onBack }: { climb: Climb; onBack: () => void }) {
           </div>
         )}
 
-        {/* ── OpenBeta text content ── */}
-        <div>
-          <h3 className="text-xs font-semibold text-stone-500 uppercase tracking-wide mb-1.5">
-            Description
-          </h3>
-          {climb.content?.description
-            ? <p className="text-sm text-stone-700 leading-relaxed">{climb.content.description}</p>
-            : <p className="text-sm text-stone-400 italic">Not available in OpenBeta</p>
-          }
-        </div>
+        {/* ── Mountain Project (below grade summary) ── */}
+        {mpId && <MPSection mpId={mpId} />}
 
-        <div>
-          <h3 className="text-xs font-semibold text-stone-500 uppercase tracking-wide mb-1.5">
-            Getting There
-          </h3>
-          {climb.content?.location
-            ? <p className="text-sm text-stone-700 leading-relaxed">{climb.content.location}</p>
-            : <p className="text-sm text-stone-400 italic">Not available in OpenBeta</p>
-          }
-        </div>
+        {/* ── Remaining OpenBeta content ── */}
+        <div className={mpId ? 'border-t border-stone-100 pt-4 space-y-4' : 'space-y-4'}>
+          <dl className="grid grid-cols-2 gap-x-4 gap-y-3">
+            <InfoField
+              label="Bolts"
+              value={climb.boltsCount != null && climb.boltsCount !== -1 ? String(climb.boltsCount) : 'Unknown'}
+              muted={climb.boltsCount == null || climb.boltsCount === -1}
+            />
+            <InfoField
+              label="Safety"
+              value={climb.safety && climb.safety !== 'UNSPECIFIED' ? climb.safety : 'Unknown'}
+              muted={!climb.safety || climb.safety === 'UNSPECIFIED'}
+            />
+          </dl>
 
-        <div>
-          <h3 className="text-xs font-semibold text-stone-500 uppercase tracking-wide mb-1.5">
-            Protection
-          </h3>
-          {climb.content?.protection
-            ? <p className="text-sm text-stone-700 leading-relaxed">{climb.content.protection}</p>
-            : <p className="text-sm text-stone-400 italic">Not available in OpenBeta</p>
-          }
-        </div>
+          <div>
+            <h3 className="text-xs font-semibold text-stone-500 uppercase tracking-wide mb-1.5">
+              Description
+            </h3>
+            {climb.content?.description
+              ? <p className="text-sm text-stone-700 leading-relaxed">{climb.content.description}</p>
+              : <p className="text-sm text-stone-400 italic">Not available in OpenBeta</p>
+            }
+          </div>
 
-        {/* ── Pitches ── */}
-        <div>
-          <h3 className="text-xs font-semibold text-stone-500 uppercase tracking-wide mb-2">
-            Pitches
-          </h3>
-          {pitches.length > 0 ? (
-            <div className="space-y-2">
-              {pitches.map((pitch) => (
-                <div
-                  key={pitch.id}
-                  className="flex items-start gap-3 p-2 rounded-lg bg-stone-50 border border-stone-200"
-                >
-                  <span className="text-xs font-bold text-stone-400 w-5 text-center flex-none mt-0.5">
-                    {pitch.pitchNumber}
-                  </span>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      {pitch.grades && (
-                        <span className="text-xs font-mono font-medium text-sage-600">
-                          {getGrade(pitch.grades)}
-                        </span>
-                      )}
-                      {pitch.type && (
-                        <span className="text-xs text-stone-400">{getClimbTypes(pitch.type)}</span>
-                      )}
-                      {pitch.length != null && pitch.length > 0 && (
-                        <span className="text-xs text-stone-400">{pitch.length} m</span>
-                      )}
-                      {pitch.boltsCount != null && pitch.boltsCount > 0 && (
-                        <span className="text-xs text-stone-400">{pitch.boltsCount} bolts</span>
+          <div>
+            <h3 className="text-xs font-semibold text-stone-500 uppercase tracking-wide mb-1.5">
+              Getting There
+            </h3>
+            {climb.content?.location
+              ? <p className="text-sm text-stone-700 leading-relaxed">{climb.content.location}</p>
+              : <p className="text-sm text-stone-400 italic">Not available in OpenBeta</p>
+            }
+          </div>
+
+          <div>
+            <h3 className="text-xs font-semibold text-stone-500 uppercase tracking-wide mb-1.5">
+              Protection
+            </h3>
+            {climb.content?.protection
+              ? <p className="text-sm text-stone-700 leading-relaxed">{climb.content.protection}</p>
+              : <p className="text-sm text-stone-400 italic">Not available in OpenBeta</p>
+            }
+          </div>
+
+          <div>
+            <h3 className="text-xs font-semibold text-stone-500 uppercase tracking-wide mb-2">
+              Pitches
+            </h3>
+            {pitches.length > 0 ? (
+              <div className="space-y-2">
+                {pitches.map((pitch) => (
+                  <div
+                    key={pitch.id}
+                    className="flex items-start gap-3 p-2 rounded-lg bg-stone-50 border border-stone-200"
+                  >
+                    <span className="text-xs font-bold text-stone-400 w-5 text-center flex-none mt-0.5">
+                      {pitch.pitchNumber}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        {pitch.grades && (
+                          <span className="text-xs font-mono font-medium text-sage-600">
+                            {getGrade(pitch.grades)}
+                          </span>
+                        )}
+                        {pitch.type && (
+                          <span className="text-xs text-stone-400">{getClimbTypes(pitch.type)}</span>
+                        )}
+                        {pitch.length != null && pitch.length > 0 && (
+                          <span className="text-xs text-stone-400">{pitch.length} m</span>
+                        )}
+                        {pitch.boltsCount != null && pitch.boltsCount > 0 && (
+                          <span className="text-xs text-stone-400">{pitch.boltsCount} bolts</span>
+                        )}
+                      </div>
+                      {pitch.description && (
+                        <p className="text-xs text-stone-600 mt-0.5 leading-relaxed">
+                          {pitch.description}
+                        </p>
                       )}
                     </div>
-                    {pitch.description && (
-                      <p className="text-xs text-stone-600 mt-0.5 leading-relaxed">
-                        {pitch.description}
-                      </p>
-                    )}
                   </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-sm text-stone-400 italic">Not available in OpenBeta</p>
-          )}
-        </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-stone-400 italic">Not available in OpenBeta</p>
+            )}
+          </div>
 
-        {/* ── Photos ── */}
-        <div>
-          <h3 className="text-xs font-semibold text-stone-500 uppercase tracking-wide mb-2">
-            Photos
-          </h3>
-          {photos.length > 0 ? (
-            <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
-              {photos.map((photo, i) => (
-                <a
-                  key={i}
-                  href={getMediaUrl(photo.mediaUrl)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex-none"
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={getMediaUrl(photo.mediaUrl)}
-                    alt={`${climb.name} photo ${i + 1}`}
-                    className="h-32 w-auto rounded-lg object-cover border border-stone-200"
-                  />
-                </a>
-              ))}
-            </div>
-          ) : (
-            <p className="text-sm text-stone-400 italic">Not available in OpenBeta</p>
-          )}
+          <div>
+            <h3 className="text-xs font-semibold text-stone-500 uppercase tracking-wide mb-2">
+              Photos
+            </h3>
+            {photos.length > 0 ? (
+              <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
+                {photos.map((photo, i) => (
+                  <a
+                    key={i}
+                    href={getMediaUrl(photo.mediaUrl)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-none"
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={getMediaUrl(photo.mediaUrl)}
+                      alt={`${climb.name} photo ${i + 1}`}
+                      className="h-32 w-auto rounded-lg object-cover border border-stone-200"
+                    />
+                  </a>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-stone-400 italic">Not available in OpenBeta</p>
+            )}
+          </div>
         </div>
-
-        {/* ── Mountain Project data (replaces the old link button) ── */}
-        {mpId && <MPSection mpId={mpId} />}
       </div>
     </div>
   );
