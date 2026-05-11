@@ -1,47 +1,12 @@
-'use client';
-
-import { useState, useRef } from 'react';
-import Script from 'next/script';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowRightIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { ArrowRightIcon } from '@heroicons/react/24/outline';
 import WellHungLogo from '@/app/ui-components/well-hung-logo';
 import { lusitana } from '@/app/ui-components/fonts';
 
-declare global {
-  interface Window {
-    instgrm?: { Embeds: { process: () => void } };
-  }
-}
-
 export default function HeroSection() {
-  const [showEmbed, setShowEmbed] = useState(false);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  function handleMouseEnter() {
-    if (showEmbed || timerRef.current) return;
-    timerRef.current = setTimeout(() => {
-      setShowEmbed(true);
-      window.instgrm?.Embeds.process();
-    }, 2500);
-  }
-
-  function handleMouseLeave() {
-    if (timerRef.current) {
-      clearTimeout(timerRef.current);
-      timerRef.current = null;
-    }
-  }
-
   return (
-    <>
-      <Script src="//www.instagram.com/embed.js" strategy="lazyOnload" />
-
-      <section
-        className="relative h-screen flex items-center justify-center overflow-hidden"
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-      >
+    <section className="relative h-screen flex items-center justify-center overflow-hidden">
         {/* Background image */}
         <div className="absolute inset-0 z-0">
           <Image
@@ -83,58 +48,6 @@ export default function HeroSection() {
           </div>
         </div>
 
-        {/* Instagram photo credit — fades in after 2.5s hover */}
-        <div
-          className={`absolute bottom-8 right-8 z-20 w-80 transition-all duration-500 ${
-            showEmbed
-              ? 'opacity-100 translate-y-0 pointer-events-auto'
-              : 'opacity-0 translate-y-4 pointer-events-none'
-          }`}
-        >
-          <div className="relative">
-            <button
-              onClick={() => setShowEmbed(false)}
-              className="absolute -top-3 -right-3 z-10 bg-white rounded-full p-1 shadow-lg hover:bg-stone-100 transition-colors"
-              aria-label="Close"
-            >
-              <XMarkIcon className="w-4 h-4 text-stone-700" />
-            </button>
-            <blockquote
-              className="instagram-media"
-              data-instgrm-permalink="https://www.instagram.com/josephhillphoto/?utm_source=ig_embed&utm_campaign=loading"
-              data-instgrm-version="14"
-              style={{
-                background: '#FFF',
-                border: 0,
-                borderRadius: '3px',
-                boxShadow: '0 0 1px 0 rgba(0,0,0,0.5),0 1px 10px 0 rgba(0,0,0,0.15)',
-                margin: 0,
-                maxWidth: '540px',
-                minWidth: '280px',
-                padding: 0,
-                width: '100%',
-              }}
-            >
-              <div style={{ padding: '16px' }}>
-                <a
-                  href="https://www.instagram.com/josephhillphoto/?utm_source=ig_embed&utm_campaign=loading"
-                  target="_blank"
-                  rel="noreferrer"
-                  style={{
-                    color: '#c9c8cd',
-                    fontFamily: 'Arial,sans-serif',
-                    fontSize: '14px',
-                    lineHeight: '17px',
-                    textDecoration: 'none',
-                  }}
-                >
-                  Joe Hill (@josephhillphoto) • Instagram photos and videos
-                </a>
-              </div>
-            </blockquote>
-          </div>
-        </div>
       </section>
-    </>
   );
 }
