@@ -3,7 +3,7 @@ import Image from 'next/image';
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="h-screen overflow-hidden relative">
+    <div className="h-[100svh] overflow-hidden relative">
       {/* Overlay sidenav — fixed positioned, does not affect document flow */}
       <SideNav />
 
@@ -20,7 +20,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           />
         </div>
         {/* Scrollable content sits on top */}
-        <div className="relative z-10 h-full overflow-y-auto p-6 md:p-12">
+        <div className="relative z-10 h-full overflow-y-auto overscroll-contain p-4 pt-16 sm:p-6 sm:pt-16 md:p-12">
           {children}
         </div>
       </div>

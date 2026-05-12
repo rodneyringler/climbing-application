@@ -5,11 +5,11 @@ import { PlayIcon } from '@heroicons/react/24/solid';
 export default function DashboardPage() {
   return (
     /*
-     * Break out of the layout's p-6 md:p-12 padding so the map fills
-     * edge-to-edge. h-screen + overflow-hidden ensures the map gets a
-     * concrete height to render into (RouteMap uses h-full internally).
+     * Break out of the layout's mobile and desktop padding so the map fills
+     * edge-to-edge. 100svh + overflow-hidden ensures the map gets a
+     * concrete, mobile-safe height to render into (RouteMap uses h-full internally).
      */
-    <div className="-m-6 md:-m-12 h-screen overflow-hidden relative">
+    <div className="-mx-4 -mb-4 -mt-16 sm:-mx-6 sm:-mb-6 sm:-mt-16 md:-m-12 h-[100svh] overflow-hidden relative">
       <RouteMap />
 
       {/*
@@ -18,7 +18,7 @@ export default function DashboardPage() {
        */}
       <Link
         href="/ui/dashboard/get-started"
-        className="fixed top-0 left-1/2 -translate-x-1/2 z-[5000] flex items-center justify-center gap-2 bg-white/95 backdrop-blur-sm hover:bg-white text-stone-800 font-semibold text-sm w-36 hover:w-screen py-3 rounded-b-2xl hover:rounded-none shadow-md hover:shadow-lg border-b border-stone-200/60 transition-all duration-300 ease-in-out"
+        className="fixed top-3 left-1/2 -translate-x-1/2 z-[5000] flex max-w-[calc(100vw-6rem)] items-center justify-center gap-2 rounded-full border border-stone-200/70 bg-white/95 px-4 py-2.5 text-sm font-semibold text-stone-800 shadow-md backdrop-blur-sm transition-all duration-300 ease-in-out hover:bg-white hover:shadow-lg sm:top-0 sm:w-36 sm:rounded-b-2xl sm:rounded-t-none sm:border-x-0 sm:border-t-0 sm:px-0 sm:py-3 sm:hover:w-screen sm:hover:rounded-none"
       >
         <PlayIcon className="w-3.5 h-3.5 text-sage-500" />
         Get Started
