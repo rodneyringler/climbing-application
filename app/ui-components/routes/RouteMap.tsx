@@ -912,9 +912,9 @@ export default function RouteMap() {
   }
 
   return (
-    <div className="flex flex-col md:flex-row md:h-full gap-3 md:gap-4">
-      {/* ── Map — top on mobile, right on desktop ── */}
-      <div className="order-1 md:order-2 h-64 md:h-auto md:flex-1 rounded-xl overflow-hidden border border-stone-200 relative">
+    <div className="relative h-full md:flex md:flex-row md:gap-4">
+      {/* ── Map — full screen on mobile, right column on desktop ── */}
+      <div className="absolute inset-0 overflow-hidden border border-stone-200 md:relative md:order-2 md:flex-1 md:rounded-xl">
         <Script
           src={`https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`}
           strategy="afterInteractive"
@@ -928,8 +928,8 @@ export default function RouteMap() {
         <div ref={mapRef} className="w-full h-full" />
       </div>
 
-      {/* ── Panel — bottom on mobile, left on desktop ── */}
-      <div className="order-2 md:order-1 md:w-72 md:flex-none bg-stone-100 rounded-xl border border-stone-200 md:overflow-y-auto p-4">
+      {/* ── Panel — bottom sheet on mobile, left sidebar on desktop ── */}
+      <div className="absolute inset-x-3 bottom-3 z-[1000] max-h-[48svh] overflow-y-auto rounded-2xl border border-stone-200 bg-stone-100/95 p-4 shadow-xl backdrop-blur-sm md:static md:order-1 md:h-full md:max-h-none md:w-80 md:flex-none md:overflow-y-auto md:rounded-xl md:bg-stone-100 md:shadow-none md:backdrop-blur-none">
         {panelContent}
       </div>
     </div>
