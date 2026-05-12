@@ -796,6 +796,8 @@ export default function RouteMap() {
   useEffect(() => {
     if (!mapsLoaded || !userLocation || !mapRef.current || mapInstanceRef.current) return;
 
+    const isMobileLayout = window.matchMedia('(max-width: 767px)').matches;
+
     const map = new google.maps.Map(mapRef.current, {
       center: userLocation,
       zoom: 11,
@@ -807,6 +809,9 @@ export default function RouteMap() {
       scrollwheel: true,
       gestureHandling: 'greedy',
       mapTypeControl: true,
+      ...(isMobileLayout
+        ? { mapTypeControlOptions: { position: google.maps.ControlPosition.RIGHT_TOP } }
+        : {}),
       streetViewControl: false,
       fullscreenControl: false,
     });
