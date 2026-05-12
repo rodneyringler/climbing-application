@@ -19,7 +19,7 @@ export default function DashboardPage() {
        */}
       <Link
         href="/ui/dashboard/get-started"
-        className="fixed top-3 left-1/2 -translate-x-1/2 z-[5000] flex max-w-[calc(100vw-6rem)] items-center justify-center gap-2 rounded-full border border-stone-200/70 bg-white/95 px-4 py-2.5 text-sm font-semibold text-stone-800 shadow-md backdrop-blur-sm transition-all duration-300 ease-in-out hover:bg-white hover:shadow-lg sm:top-0 sm:w-36 sm:rounded-b-2xl sm:rounded-t-none sm:border-x-0 sm:border-t-0 sm:px-0 sm:py-3 sm:hover:w-screen sm:hover:rounded-none"
+        className="fixed top-16 left-1/2 -translate-x-1/2 z-[5000] flex max-w-[calc(100vw-6rem)] items-center justify-center gap-2 rounded-full border border-stone-200/70 bg-white/95 px-4 py-2.5 text-sm font-semibold text-stone-800 shadow-md backdrop-blur-sm transition-all duration-300 ease-in-out hover:bg-white hover:shadow-lg md:top-0 md:w-36 md:rounded-b-2xl md:rounded-t-none md:border-x-0 md:border-t-0 md:px-0 md:py-3 md:hover:w-screen md:hover:rounded-none"
       >
         <PlayIcon className="w-3.5 h-3.5 text-sage-500" />
         Get Started
