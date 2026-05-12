@@ -8,6 +8,7 @@ export default function DashboardPage() {
      * Break out of the layout's mobile and desktop padding so the map fills
      * edge-to-edge. 100svh + overflow-hidden ensures the map gets a
      * concrete, mobile-safe height to render into (RouteMap uses h-full internally).
+     * Keep this wrapper in sync with the responsive RouteMap layout.
      */
     <div className="-mx-4 -mb-4 -mt-16 sm:-mx-6 sm:-mb-6 sm:-mt-16 md:-m-12 h-[100svh] overflow-hidden relative">
       <RouteMap />
