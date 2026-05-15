@@ -5,6 +5,7 @@ import { Exercise } from '@/app/lib/exercise/exercise';
 import { getUserCount } from '@/app/lib/account/account-actions';
 import { getWorkoutCount } from '@/app/lib/workout/workout-actions';
 import HeroSection from '@/app/ui-components/home/hero-section';
+import { landingPages } from '@/app/lib/marketing/landing-pages';
 
 export default async function Page() {
   const exerciseCount = await Exercise.countFiltered('');
@@ -71,6 +72,48 @@ export default async function Page() {
                 Connect with fellow climbers and share your achievements and challenges.
               </p>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Training Resources Section */}
+      <section className="py-20 bg-white">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between mb-12">
+            <div>
+              <p className="text-sm font-bold uppercase tracking-[0.25em] text-sage-600 mb-3">Training resources</p>
+              <h2 className={`${lusitana.className} text-3xl md:text-4xl font-bold text-stone-800 mb-4`}>
+                Learn How to Train for Climbing
+              </h2>
+              <p className="text-lg text-stone-600 max-w-2xl">
+                Explore practical climbing training guides, then use ClimbTrackr to turn those ideas into repeatable exercises, programs, and logged workouts.
+              </p>
+            </div>
+            <Link
+              href="/climbing-training-plan"
+              className="inline-flex items-center justify-center gap-2 rounded-lg border-2 border-sage-500 px-5 py-3 font-semibold text-sage-600 transition-colors hover:bg-sage-500 hover:text-white"
+            >
+              Start with training plans
+              <ArrowRightIcon className="w-5 h-5" />
+            </Link>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            {landingPages.map((page) => (
+              <Link
+                key={page.slug}
+                href={`/${page.slug}`}
+                className="group flex h-full flex-col rounded-xl bg-stone-100 p-6 shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+              >
+                <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-sage-600">{page.eyebrow}</p>
+                <h3 className="mb-3 text-xl font-bold text-stone-800 group-hover:text-sage-600">{page.shortTitle}</h3>
+                <p className="mb-6 flex-1 text-stone-600">{page.description}</p>
+                <span className="inline-flex items-center gap-2 font-semibold text-sage-600">
+                  Read the guide
+                  <ArrowRightIcon className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+                </span>
+              </Link>
+            ))}
           </div>
         </div>
       </section>
