@@ -7,6 +7,8 @@ import { getWorkoutCount } from '@/app/lib/workout/workout-actions';
 import HeroSection from '@/app/ui-components/home/hero-section';
 import { landingPages } from '@/app/lib/marketing/landing-pages';
 
+export const dynamic = 'force-dynamic';
+
 export default async function Page() {
   const exerciseCount = await Exercise.countFiltered('');
   const userCount = await getUserCount();
